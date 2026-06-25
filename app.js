@@ -528,7 +528,7 @@ document.getElementById("analyze-button").addEventListener("click", async () => 
 
 document.getElementById("export-report-button").addEventListener("click", exportReport);
 document.getElementById("generate-kit-button").addEventListener("click", generateMaterials);
-document.getElementById("top-copilot-button").addEventListener("click", () =>
+document.getElementById("top-copilot-button")?.addEventListener("click", () =>
   document.getElementById("copilot").scrollIntoView({ behavior: "smooth" })
 );
 document.getElementById("paste-job-button").addEventListener("click", () =>
