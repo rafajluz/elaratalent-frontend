@@ -66,8 +66,10 @@ function renderAuthArea() {
   const limit = 3;
 
   if (!auth.token) {
-    area.innerHTML = `<button id="btn-open-login">Entrar / Cadastrar</button>`;
-    document.getElementById("btn-open-login").addEventListener("click", () => openModal("modal-auth"));
+    const btn = document.getElementById("btn-open-login");
+    if (btn) {
+      btn.addEventListener("click", () => openModal("modal-auth"));
+    }
     document.getElementById("usage-info").textContent = "";
     return;
   }
