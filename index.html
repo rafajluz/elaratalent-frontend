@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Elara Talent</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="mark">ET</span>
+          <div>
+            <strong>Elara Talent</strong>
+            <small>Head Hunter Virtual</small>
+          </div>
+        </div>
+        <nav>
+          <a href="#analise">Análise</a>
+          <a href="#matching">Matching</a>
+          <a href="#diagnostico">Diagnóstico</a>
+          <a href="#entrevista">Entrevista</a>
+          <a href="#copilot">Copilot</a>
+        </nav>
+        <div id="auth-area">
+          <!-- preenchido por JS -->
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="badges">
+            <span>Score explicável</span>
+            <span>Radar de objeções</span>
+            <span>ATS friendly</span>
+          </div>
+          <h1>Transforme uma vaga em plano de aprovação.</h1>
+          <p>
+            Cole seu currículo, cole uma vaga e receba aderência, probabilidade de aprovação,
+            gaps críticos, respostas para objeções e materiais de candidatura.
+          </p>
+          <div class="actions">
+            <label>
+              <input type="file" />
+              <strong>Enviar currículo</strong>
+              <small>PDF, DOCX ou LinkedIn</small>
+            </label>
+            <button class="secondary" id="paste-job-button">Colar vaga</button>
+          </div>
+        </div>
+        <div class="radar" aria-label="Match geral de 82%">
+          <div class="ring">
+            <small>Match geral</small>
+            <strong id="match-score">82%</strong>
+            <span id="match-caption">Aderência forte, com três gaps negociáveis.</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="paywall-banner" id="paywall-banner">
+        <p><strong>Você usou suas 3 análises gratuitas.</strong> Assine o Elara Talent Pro para análises ilimitadas.</p>
+        <button id="btn-open-upgrade">Ver planos — a partir de R$ 29,90/mês</button>
+      </div>
+
+      <section class="workspace" id="analise">
+        <article class="panel input-panel">
+          <div>
+            <p class="eyebrow">Entrada do candidato</p>
+            <h2>Currículo</h2>
+          </div>
+          <textarea id="resume-input" rows="8">Gerente de operações com 10 anos de experiência, MBA em Gestão, inglês fluente, liderança de times, analytics, SAP, negociação, melhoria de processos e redução de custos em 18%.</textarea>
+        </article>
+        <article class="panel input-panel">
+          <div>
+            <p class="eyebrow">Vaga alvo</p>
+            <h2>Descrição da vaga</h2>
+          </div>
+          <textarea id="job-input" rows="8">Vaga para Head de Operações com liderança de equipes acima de 20 pessoas, inglês fluente, SAP avançado, analytics, gestão de fornecedores, certificação PMP e experiência internacional.</textarea>
+        </article>
+        <article class="panel command-panel">
+          <p class="eyebrow">Ação</p>
+          <h2>Análise guiada</h2>
+          <p>Use os textos de exemplo ou cole uma vaga real. A Hera calcula aderência, probabilidades, gaps e kit de candidatura.</p>
+          <div class="button-stack">
+            <button id="analyze-button">Analisar match</button>
+            <button class="secondary" id="export-report-button">Exportar relatório</button>
+          </div>
+          <div class="usage-counter" id="usage-info"></div>
+        </article>
+      </section>
+
+      <section class="metrics">
+        <article><small>Vagas analisadas</small><strong>38</strong><span>+12 nesta semana</span></article>
+        <article><small>Melhor aderência</small><strong>92%</strong><span>Head de Operações</span></article>
+        <article><small>Entrevista provável</small><strong>78%</strong><span>score explicável</span></article>
+        <article><small>Evolução ATS</small><strong>+24</strong><span>pontos em 30 dias</span></article>
+      </section>
+
+      <section id="matching" class="grid two">
+        <article class="panel">
+          <p class="eyebrow">Currículo x vaga</p>
+          <h2>Compatibilidade por categoria</h2>
+          <div class="bars">
+            <span data-category="experience" style="--v:90%"><b>Experiência</b><i>90%</i></span>
+            <span data-category="education" style="--v:75%"><b>Formação</b><i>75%</i></span>
+            <span data-category="skills" style="--v:85%"><b>Skills técnicas</b><i>85%</i></span>
+            <span data-category="languages" style="--v:100%"><b>Idiomas</b><i>100%</i></span>
+            <span data-category="certifications" style="--v:60%"><b>Certificações</b><i>60%</i></span>
+          </div>
+        </article>
+        <article class="panel">
+          <p class="eyebrow">Probabilidade de aprovação</p>
+          <h2>Modelo explicável</h2>
+          <div class="probabilities">
+            <div><strong id="screening-score">85%</strong><span>Passar da triagem inicial</span><small id="screening-reason">Currículo tem senioridade e palavras-chave essenciais.</small></div>
+            <div><strong id="interview-score">78%</strong><span>Ser chamado para entrevista</span><small id="interview-reason">Resultados e inglês elevam o score.</small></div>
+            <div><strong id="offer-score">52%</strong><span>Receber proposta</span><small id="offer-reason">Depende de faixa salarial, fit cultural e SAP.</small></div>
+          </div>
+        </article>
+      </section>
+
+      <section id="diagnostico" class="grid three">
+        <article class="panel">
+          <h2>Pontos fortes</h2>
+          <ul>
+            <li>10 anos de experiência na área</li>
+            <li>MBA relevante</li>
+            <li>Inglês fluente</li>
+            <li>Liderança e resultados mensuráveis</li>
+          </ul>
+        </article>
+        <article class="panel">
+          <h2>Pontos fracos</h2>
+          <ul>
+            <li>Falta certificação PMP</li>
+            <li>Pouca experiência internacional</li>
+            <li>SAP aparece sem profundidade</li>
+          </ul>
+        </article>
+        <article class="panel copper">
+          <h2>Gaps críticos</h2>
+          <p id="critical-gaps">Para atingir 100%, comprovar SAP avançado, liderança acima de 20 pessoas, certificação em projetos e exposição internacional.</p>
+        </article>
+      </section>
+
+      <section class="grid two">
+        <article class="panel">
+          <p class="eyebrow">Radar do recrutador</p>
+          <h2>Objeções prováveis</h2>
+          <div class="objections" id="objections-list">
+            <article>
+              <strong>Você nunca liderou times acima de 20 pessoas.</strong>
+              <span>Risco alto</span>
+              <p>Prepare uma resposta com liderança direta, liderança matricial, fornecedores e impacto operacional.</p>
+            </article>
+            <article>
+              <strong>A vaga pede SAP avançado.</strong>
+              <span>Risco médio</span>
+              <p>Conecte módulos usados, escopo real e plano de nivelamento para os primeiros 30 dias.</p>
+            </article>
+          </div>
+        </article>
+        <article class="panel">
+          <p class="eyebrow">Otimização de currículo</p>
+          <h2>Plano ATS</h2>
+          <div class="ats-plan" id="ats-plan">
+            <span>Adicionar certificação PMP ou curso equivalente.</span>
+            <span>Repetir termos críticos da vaga no resumo e experiências.</span>
+            <span>Trocar responsabilidades genéricas por métricas de impacto.</span>
+          </div>
+        </article>
+      </section>
+
+      <section id="entrevista" class="grid two">
+        <article class="panel">
+          <p class="eyebrow">Simulador de entrevista</p>
+          <h2>Perguntas geradas para a vaga</h2>
+          <ol id="interview-list">
+            <li>Conte sobre um projeto em que você reduziu custo ou aumentou eficiência.</li>
+            <li>Como prioriza conflitos entre diretoria, cliente e operação?</li>
+            <li>Qual foi seu maior fracasso profissional e o que mudou depois?</li>
+            <li>Por que devemos contratar você para esta vaga?</li>
+          </ol>
+        </article>
+        <article class="panel">
+          <p class="eyebrow">Coach de entrevista</p>
+          <h2>Pitch de 30 segundos</h2>
+          <p>
+            Sou um líder de operações com 10 anos de experiência em melhoria de processos,
+            gestão de times e implantação de rotinas que aumentam eficiência. Para esta vaga,
+            trago visão analítica, fluência em inglês e histórico de resultados mensuráveis.
+          </p>
+        </article>
+      </section>
+
+      <section id="copilot" class="panel copilot">
+        <div>
+          <p class="eyebrow">Copilot de candidatura</p>
+          <h2>Kit pronto para aplicar</h2>
+        </div>
+        <div class="kit">
+          <span>Carta de apresentação personalizada</span>
+          <span>Currículo adaptado para ATS</span>
+          <span>Mensagem para LinkedIn</span>
+          <span>E-mail ao recrutador</span>
+          <span>Roteiro de networking</span>
+        </div>
+        <button id="generate-kit-button">Gerar materiais</button>
+        <div class="materials" id="materials" hidden></div>
+      </section>
+
+      <section class="panel history-panel">
+        <div>
+          <p class="eyebrow">Pipeline pessoal</p>
+          <h2>Histórico de análises</h2>
+        </div>
+        <div class="history-list" id="history-list">
+          <article>
+            <strong>Head de Operações</strong>
+            <span>Match 82% · entrevista 78%</span>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modal: Login / Cadastro -->
+    <div class="modal-overlay" id="modal-auth">
+      <div class="modal">
+        <button class="modal-close" id="modal-auth-close" aria-label="Fechar">✕</button>
+        <h2 id="auth-modal-title">Entrar</h2>
+        <div class="modal-error" id="auth-error"></div>
+        <div id="auth-form-name" style="display:none">
+          <input type="text" id="auth-name" placeholder="Seu nome (opcional)" />
+        </div>
+        <input type="email" id="auth-email" placeholder="E-mail" />
+        <input type="password" id="auth-password" placeholder="Senha" />
+        <button class="primary" id="auth-submit">Entrar</button>
+        <div class="switch-link" id="auth-switch">
+          Não tem conta? <a id="auth-toggle">Cadastre-se grátis</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Upgrade / Planos -->
+    <div class="modal-overlay" id="modal-upgrade">
+      <div class="modal">
+        <button class="modal-close" id="modal-upgrade-close" aria-label="Fechar">✕</button>
+        <h2>Escolha seu plano</h2>
+        <p style="color:rgba(24,32,27,0.62);margin:0 0 4px;font-size:14px;">
+          Análises ilimitadas, kit de candidatura completo e acesso prioritário a novos recursos.
+        </p>
+        <div class="plan-cards">
+          <div class="plan-card" data-plan="mensal">
+            <strong>Mensal <span class="price">R$ 29,90</span></strong>
+            <span>Cobrado todo mês · cancele quando quiser</span>
+          </div>
+          <div class="plan-card selected" data-plan="trimestral">
+            <strong>Trimestral <span class="price">R$ 74,90</span></strong>
+            <span>R$ 24,97/mês · economize 17% · 3 meses</span>
+          </div>
+          <div class="plan-card" data-plan="anual">
+            <strong>Anual <span class="price">R$ 239,90</span></strong>
+            <span>R$ 19,99/mês · economize 33% · melhor custo</span>
+          </div>
+        </div>
+        <button class="primary" id="btn-checkout">Assinar agora</button>
+        <div class="switch-link" style="margin-top:10px;font-size:12px;">
+          Pagamento seguro via MercadoPago · PIX ou cartão
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
