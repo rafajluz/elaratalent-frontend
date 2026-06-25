@@ -201,9 +201,11 @@ document.getElementById("btn-checkout").addEventListener("click", () => {
   // Abre MercadoPago externamente (evita taxa da Play Store)
   // Em produção, gere um link de checkout via sua API e redirecione
   const mpLinks = {
-    mensal:      "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=SEU_ID_MENSAL",
-    trimestral:  "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=SEU_ID_TRIMESTRAL",
-    anual:       "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=SEU_ID_ANUAL",
+    const mpLinks = {
+  mensal:      "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=4489b4dc33ca444eabda7fb422fafca0",
+  trimestral:  "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=24210aa3f0014edc99c540ab2d260cb3",
+  anual:       "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=ec6038c9da4b4ff3983213a58526b6e6",
+};
   };
   window.open(mpLinks[selectedPlan], "_blank");
 });
