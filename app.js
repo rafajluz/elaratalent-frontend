@@ -383,7 +383,7 @@ function extractTerms(text, termList) {
 }
 
 function renderFromApi(data, resume, job) {
-  const { match_score, category_scores, probabilities, critical_gaps, objections, interview_questions, optimized_summary } = data;console.log("API data:", JSON.stringify(data));
+  const { match_score, category_scores, probabilities, critical_gaps, objections, interview_questions, optimized_summary } = data;);
 console.log("API data:", JSON.stringify(data));
   updateText("match-score", `${match_score}%`);
   updateText("match-caption",
