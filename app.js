@@ -1,5 +1,5 @@
 // ─── Config ───────────────────────────────────────────────────────────────────
-const API_URL = window.ENV_API_URL || "https://elaratalent-api.railway.app";
+const API_URL = window.ENV_API_URL || "https://web-production-acc31.up.railway.app";
 
 // ─── Estado de autenticação ───────────────────────────────────────────────────
 const auth = {
