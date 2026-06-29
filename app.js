@@ -362,8 +362,14 @@ async function analyze() {
       await fetchMe(); // atualiza contador
       return;
     }
-  } catch (_) {
-    // sem conexão — roda scoring local como fallback
+
+    const errorBody = await res.json().catch(() => ({}));
+    console.error(`/match falhou com status ${res.status}:`, errorBody);
+    alert(`Erro ao analisar (status ${res.status}): ${JSON.stringify(errorBody.detail || errorBody)}`);
+    return;
+  } catch (err) {
+    console.error("Erro de conexão ao chamar /match:", err);
+    alert(`Erro de conexão com a API: ${err.message}`);
   }
 
   // Fallback: scoring local
