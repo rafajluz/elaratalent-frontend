@@ -340,12 +340,12 @@ async function analyze() {
           achievements: [],
         },
         job: {
-          title: inferRole(job),
-          description: job,
-          required_skills: extractTerms(job, keywords.skills),
-          required_certifications: extractTerms(job, keywords.certifications),
-          languages: extractTerms(job, keywords.languages),
-        },
+  title: inferRole(job),
+  description: `CURRÍCULO:\n${resume}\n\nVAGA:\n${job}`,
+  required_skills: extractTerms(job, keywords.skills),
+  required_certifications: extractTerms(job, keywords.certifications),
+  languages: extractTerms(job, keywords.languages),
+},
       }),
     });
       }),
