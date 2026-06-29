@@ -315,7 +315,8 @@ async function analyze() {
   const btn = document.getElementById("analyze-button");
   btn.classList.add("loading");
   btn.textContent = "Analisando...";
-// Extrai anos de experiência do texto
+try {
+  // Extrai anos de experiência do texto
     const yearsMatch = resume.match(/(\d+)\s*anos?\s*de\s*experi[eê]ncia/i);
     const yearsExp = yearsMatch ? parseInt(yearsMatch[1]) : 5;
 
