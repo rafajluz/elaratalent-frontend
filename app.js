@@ -407,7 +407,17 @@ function renderFromApi(data, resume, job) {
   category_scores.forEach(({ category, score }) => {
     if (catMap[category]) setBar(catMap[category], score);
   });
+// Atualiza pontos fortes
+    const strengthsList = document.querySelector("#diagnostico .panel:nth-child(1) ul");
+    if (strengthsList && data.strengths?.length) {
+      strengthsList.innerHTML = data.strengths.map(s => `<li>${escapeHtml(s)}</li>`).join("");
+    }
 
+    // Atualiza pontos fracos
+    const weaknessesList = document.querySelector("#diagnostico .panel:nth-child(2) ul");
+    if (weaknessesList && data.weaknesses?.length) {
+      weaknessesList.innerHTML = data.weaknesses.map(w => `<li>${escapeHtml(w)}</li>`).join("");
+    }
   const list = document.getElementById("interview-list");
   list.innerHTML = interview_questions.map((q) => `<li>${escapeHtml(q)}</li>`).join("");
 
