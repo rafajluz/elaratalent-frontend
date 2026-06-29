@@ -408,13 +408,12 @@ function renderFromApi(data, resume, job) {
     if (catMap[category]) setBar(catMap[category], score);
   });
 // Atualiza pontos fortes
-    const strengthsList = document.querySelector("#diagnostico .panel:nth-child(1) ul");
+    const strengthsList = document.getElementById("strengths-list");
     if (strengthsList && data.strengths?.length) {
       strengthsList.innerHTML = data.strengths.map(s => `<li>${escapeHtml(s)}</li>`).join("");
     }
 
-    // Atualiza pontos fracos
-    const weaknessesList = document.querySelector("#diagnostico .panel:nth-child(2) ul");
+    const weaknessesList = document.getElementById("weaknesses-list");
     if (weaknessesList && data.weaknesses?.length) {
       weaknessesList.innerHTML = data.weaknesses.map(w => `<li>${escapeHtml(w)}</li>`).join("");
     }
