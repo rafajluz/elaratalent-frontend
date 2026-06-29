@@ -1,25 +1,29 @@
 // ─── Config ───────────────────────────────────────────────────────────────────
-const API_URL = "https://web-production-acc31.up.railway.app";
+const API_URL = window.ENV_API_URL || "https://elaratalent-api.railway.app";
 
-// ─── Auth ─────────────────────────────────────────────────────────────────────
+// ─── Estado de autenticação ───────────────────────────────────────────────────
 const auth = {
   token: localStorage.getItem("ca_token"),
   user: JSON.parse(localStorage.getItem("ca_user") || "null"),
+
   save(token, user) {
     this.token = token;
     this.user = user;
     localStorage.setItem("ca_token", token);
     localStorage.setItem("ca_user", JSON.stringify(user));
   },
+
   clear() {
     this.token = null;
     this.user = null;
     localStorage.removeItem("ca_token");
     localStorage.removeItem("ca_user");
   },
+
   isPremium() {
     return this.user && this.user.plan !== "free";
   },
+
   headers() {
     return {
       "Content-Type": "application/json",
@@ -28,7 +32,7 @@ const auth = {
   },
 };
 
-// ─── UI helpers ───────────────────────────────────────────────────────────────
+// ─── Helpers de UI ────────────────────────────────────────────────────────────
 function updateText(id, text) {
   const el = document.getElementById(id);
   if (el) el.textContent = text;
@@ -55,89 +59,90 @@ function closeModal(id) {
   document.getElementById(id).classList.remove("open");
 }
 
-// ─── Auth area (topbar) ───────────────────────────────────────────────────────
+// ─── Barra de usuário (topbar) ────────────────────────────────────────────────
 function renderAuthArea() {
   const area = document.getElementById("auth-area");
-  if (!area) return;
+  const used = auth.user?.analyses_used ?? 0;
+  const limit = 3;
 
   if (!auth.token) {
-    const btn = document.getElementById("btn-open-login");
-    if (btn) {
-      btn.onclick = () => openModal("modal-auth");
-    }
-    updateText("usage-info", "");
+    area.innerHTML = `<button id="btn-open-login">Entrar / Cadastrar</button>`;
+    document.getElementById("btn-open-login").addEventListener("click", () => openModal("modal-auth"));
+    document.getElementById("usage-info").textContent = "";
     return;
   }
 
   const planLabel = auth.isPremium() ? auth.user.plan : "free";
   const premiumClass = auth.isPremium() ? "premium" : "";
-  const used = auth.user?.analyses_used ?? 0;
 
   area.innerHTML = `
     <div class="user-bar">
       <span style="font-size:13px;color:rgba(24,32,27,0.62);">${escapeHtml(auth.user.email)}</span>
       <span class="plan-badge ${premiumClass}">${planLabel.toUpperCase()}</span>
-      ${!auth.isPremium() ? `<button class="btn-upgrade" id="btn-upgrade-top">Upgrade</button>` : ""}
+      ${!auth.isPremium() ? `<button class="btn-upgrade" id="btn-open-upgrade-top">Upgrade</button>` : ""}
       <button class="btn-logout" id="btn-logout">Sair</button>
     </div>`;
 
-  document.getElementById("btn-logout").onclick = () => {
+  document.getElementById("btn-logout").addEventListener("click", () => {
     auth.clear();
-    location.reload();
-  };
-
-  document.getElementById("btn-upgrade-top")?.addEventListener("click", () => openModal("modal-upgrade"));
+    renderAuthArea();
+    document.getElementById("paywall-banner").classList.remove("show");
+  });
 
   if (!auth.isPremium()) {
-    updateText("usage-info", `${used} de 3 análises gratuitas usadas`);
+    document.getElementById("btn-open-upgrade-top")?.addEventListener("click", () => openModal("modal-upgrade"));
+    document.getElementById("usage-info").textContent = `${used} de ${limit} análises gratuitas usadas`;
   } else {
-    updateText("usage-info", "Plano Pro — análises ilimitadas");
+    document.getElementById("usage-info").textContent = "Plano Pro — análises ilimitadas";
   }
 }
 
-// ─── Fetch perfil ─────────────────────────────────────────────────────────────
+// ─── Fetch do perfil do usuário ───────────────────────────────────────────────
 async function fetchMe() {
   if (!auth.token) return;
   try {
     const res = await fetch(`${API_URL}/auth/me`, { headers: auth.headers() });
     if (res.ok) {
-      auth.user = await res.json();
-      localStorage.setItem("ca_user", JSON.stringify(auth.user));
+      const user = await res.json();
+      auth.user = user;
+      localStorage.setItem("ca_user", JSON.stringify(user));
     } else {
       auth.clear();
     }
-  } catch (_) {}
+  } catch (_) {
+    // sem conexão — mantém estado local
+  }
   renderAuthArea();
 }
 
 // ─── Auth modal ───────────────────────────────────────────────────────────────
-let authMode = "login";
+let authMode = "login"; // "login" | "register"
 
 function setAuthMode(mode) {
   authMode = mode;
-  const isReg = mode === "register";
-  updateText("auth-modal-title", isReg ? "Criar conta grátis" : "Entrar");
-  const btn = document.getElementById("auth-submit");
-  if (btn) btn.textContent = isReg ? "Cadastrar" : "Entrar";
-  const nameDiv = document.getElementById("auth-form-name");
-  if (nameDiv) nameDiv.style.display = isReg ? "block" : "none";
-  const sw = document.getElementById("auth-switch");
-  if (sw) {
-    sw.innerHTML = isReg
-      ? `Já tem conta? <a id="auth-toggle">Entrar</a>`
-      : `Não tem conta? <a id="auth-toggle">Cadastre-se grátis</a>`;
-    document.getElementById("auth-toggle").onclick = () => setAuthMode(isReg ? "login" : "register");
-  }
+  const isRegister = mode === "register";
+  updateText("auth-modal-title", isRegister ? "Criar conta grátis" : "Entrar");
+  updateText("auth-submit", isRegister ? "Cadastrar" : "Entrar");
+  document.getElementById("auth-form-name").style.display = isRegister ? "block" : "none";
+  document.getElementById("auth-switch").innerHTML = isRegister
+    ? `Já tem conta? <a id="auth-toggle">Entrar</a>`
+    : `Não tem conta? <a id="auth-toggle">Cadastre-se grátis</a>`;
+  document.getElementById("auth-toggle").addEventListener("click", () =>
+    setAuthMode(isRegister ? "login" : "register")
+  );
   showError("auth-error", "");
 }
 
-document.getElementById("modal-auth-close")?.addEventListener("click", () => closeModal("modal-auth"));
-document.getElementById("auth-toggle")?.addEventListener("click", () => setAuthMode("register"));
+document.getElementById("modal-auth-close").addEventListener("click", () => closeModal("modal-auth"));
+document.getElementById("auth-toggle").addEventListener("click", () =>
+  setAuthMode(authMode === "login" ? "register" : "login")
+);
 
-document.getElementById("auth-submit")?.addEventListener("click", async () => {
+document.getElementById("auth-submit").addEventListener("click", async () => {
   const email = document.getElementById("auth-email").value.trim();
   const password = document.getElementById("auth-password").value;
-  const fullName = document.getElementById("auth-name")?.value.trim();
+  const fullName = document.getElementById("auth-name").value.trim();
+
   if (!email || !password) { showError("auth-error", "Preencha e-mail e senha."); return; }
 
   const btn = document.getElementById("auth-submit");
@@ -146,6 +151,7 @@ document.getElementById("auth-submit")?.addEventListener("click", async () => {
 
   try {
     let res, data;
+
     if (authMode === "register") {
       res = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
@@ -165,6 +171,7 @@ document.getElementById("auth-submit")?.addEventListener("click", async () => {
       if (!res.ok) { showError("auth-error", data.detail || "E-mail ou senha incorretos."); return; }
       auth.save(data.access_token, { email, plan: "free", analyses_used: 0 });
     }
+
     closeModal("modal-auth");
     await fetchMe();
   } catch (_) {
@@ -185,24 +192,26 @@ document.querySelectorAll(".plan-card").forEach((card) => {
   });
 });
 
-document.getElementById("modal-upgrade-close")?.addEventListener("click", () => closeModal("modal-upgrade"));
-document.getElementById("btn-open-upgrade")?.addEventListener("click", () => openModal("modal-upgrade"));
+document.getElementById("modal-upgrade-close").addEventListener("click", () => closeModal("modal-upgrade"));
+document.getElementById("btn-open-upgrade").addEventListener("click", () => openModal("modal-upgrade"));
 
-document.getElementById("btn-checkout")?.addEventListener("click", () => {
+document.getElementById("btn-checkout").addEventListener("click", () => {
+  // Abre MercadoPago externamente (evita taxa da Play Store)
+  // Em produção, gere um link de checkout via sua API e redirecione
   const mpLinks = {
-    mensal:     "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=4489b4dc33ca444eabda7fb422fafca0",
-    trimestral: "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=24210aa3f0014edc99c540ab2d260cb3",
-    anual:      "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=ec6038c9da4b4ff3983213a58526b6e6",
+    mensal:      "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=SEU_ID_MENSAL",
+    trimestral:  "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=SEU_ID_TRIMESTRAL",
+    anual:       "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=SEU_ID_ANUAL",
   };
   window.open(mpLinks[selectedPlan], "_blank");
 });
 
-// ─── Keywords para scoring local ──────────────────────────────────────────────
+// ─── Scoring local (mantido como fallback offline) ────────────────────────────
 const keywords = {
-  experience: ["anos", "lideranca", "liderança", "gestao", "gestão", "operacao", "operação", "time", "equipe", "fornecedor"],
-  education:  ["mba", "graduacao", "graduação", "engenharia", "administracao", "administração", "pos", "pós", "formacao", "formação"],
-  skills:     ["sap", "analytics", "sql", "python", "produto", "processos", "indicadores", "negociacao", "negociação"],
-  languages:  ["ingles", "inglês", "english", "espanhol", "fluente", "avancado", "avançado"],
+  experience: ["anos", "lideranca", "liderança", "gestao", "gestão", "operacao", "operação", "operacoes", "operações", "time", "equipe", "fornecedor"],
+  education: ["mba", "graduacao", "graduação", "engenharia", "administracao", "administração", "pos", "pós", "formacao", "formação"],
+  skills: ["sap", "analytics", "sql", "python", "produto", "processos", "indicadores", "negociacao", "negociação"],
+  languages: ["ingles", "inglês", "english", "espanhol", "fluente", "avancado", "avançado"],
   certifications: ["pmp", "scrum", "agile", "itil", "certificacao", "certificação", "certificado"],
 };
 
@@ -214,15 +223,11 @@ function hasTerm(text, term) {
   return normalize(text).includes(normalize(term));
 }
 
-function extractTerms(text, termList) {
-  return termList.filter((t) => hasTerm(text, t));
-}
-
 function categoryScore(resume, job, category) {
-  const requested = keywords[category].filter((t) => hasTerm(job, t));
+  const requested = keywords[category].filter((term) => hasTerm(job, term));
   const baseline = category === "certifications" ? 60 : 72;
-  if (!requested.length) return baseline;
-  const matched = requested.filter((t) => hasTerm(resume, t)).length;
+  if (requested.length === 0) return baseline;
+  const matched = requested.filter((term) => hasTerm(resume, term)).length;
   return Math.max(35, Math.round((matched / requested.length) * 100));
 }
 
@@ -230,13 +235,13 @@ function setBar(category, score) {
   const el = document.querySelector(`[data-category="${category}"]`);
   if (!el) return;
   el.style.setProperty("--v", `${score}%`);
-  const i = el.querySelector("i");
-  if (i) i.textContent = `${score}%`;
+  const value = el.querySelector("i");
+  if (value) value.textContent = `${score}%`;
 }
 
 function findGaps(resume, job) {
-  const req = Object.values(keywords).flat().filter((t) => hasTerm(job, t));
-  return [...new Set(req.filter((t) => !hasTerm(resume, t)))].slice(0, 7);
+  const requested = Object.values(keywords).flat().filter((t) => hasTerm(job, t));
+  return [...new Set(requested.filter((t) => !hasTerm(resume, t)))].slice(0, 7);
 }
 
 function inferRole(job) {
@@ -244,28 +249,49 @@ function inferRole(job) {
   return m ? m[1].trim() : "Vaga analisada";
 }
 
-function updateRing(match) {
-  const first = Math.min(match, Math.round(match * 0.34));
-  const second = Math.min(match, Math.round(match * 0.70));
-  document.querySelector(".ring").style.background = `
-    radial-gradient(circle at center, var(--chalk) 0 57%, transparent 58%),
-    conic-gradient(var(--plum) 0 ${first}%, var(--moss) ${first}% ${second}%, var(--mint) ${second}% ${match}%, var(--line) ${match}% 100%)`;
+function riskLevel(score) {
+  if (score < 55) return "Risco alto";
+  if (score < 78) return "Risco médio";
+  return "Risco baixo";
+}
+
+function updateObjections(gaps, scores) {
+  const list = document.getElementById("objections-list");
+  const coreGaps = gaps.length ? gaps.slice(0, 3) : ["clareza de resultados", "escopo de liderança"];
+  list.innerHTML = coreGaps.map((gap) => `
+    <article>
+      <strong>${escapeHtml(`O currículo não comprova ${gap}.`)}</strong>
+      <span>${riskLevel(Math.min(scores.skills, scores.certifications, scores.experience))}</span>
+      <p>${escapeHtml(`Prepare um exemplo STAR mostrando contexto, ação, métrica e aprendizado ligado a ${gap}.`)}</p>
+    </article>`).join("");
+}
+
+function updateAtsPlan(gaps, scores) {
+  const plan = document.getElementById("ats-plan");
+  const actions = [
+    scores.skills < 80 ? "Repetir as skills críticas da vaga no resumo e em cada experiência relevante." : "Manter as skills técnicas visíveis no primeiro terço do currículo.",
+    scores.certifications < 80 ? "Adicionar certificações, cursos equivalentes ou trilha de obtenção com data prevista." : "Destacar certificações na seção superior e no LinkedIn.",
+    gaps.length ? `Criar bullets com evidências para: ${gaps.slice(0, 4).join(", ")}.` : "Trocar descrições genéricas por resultados com número, escopo e prazo.",
+    "Gerar uma versão ATS sem colunas, gráficos ou elementos que dificultem leitura automática.",
+  ];
+  plan.innerHTML = actions.map((a) => `<span>${escapeHtml(a)}</span>`).join("");
 }
 
 // ─── Histórico ────────────────────────────────────────────────────────────────
 let currentReport = null;
 
 function saveHistory(report) {
-  const history = JSON.parse(localStorage.getItem("elara-history") || "[]");
+  const history = JSON.parse(localStorage.getItem("elaratalent-history") || "[]");
   const next = [report, ...history].slice(0, 5);
-  localStorage.setItem("elara-history", JSON.stringify(next));
+  localStorage.setItem("elaratalent-history", JSON.stringify(next));
   renderHistory(next);
 }
 
-function renderHistory(history = JSON.parse(localStorage.getItem("elara-history") || "[]")) {
+function renderHistory(history = JSON.parse(localStorage.getItem("elaratalent-history") || "[]")) {
   const list = document.getElementById("history-list");
-  if (!list) return;
-  const entries = history.length ? history : [{ role: "Head de Operações", match: 82, interview: 78, date: "Exemplo" }];
+  const entries = history.length
+    ? history
+    : [{ role: "Head de Operações", match: 82, interview: 78, date: "Exemplo" }];
   list.innerHTML = entries.map((item) => `
     <article>
       <strong>${escapeHtml(item.role)}</strong>
@@ -273,11 +299,83 @@ function renderHistory(history = JSON.parse(localStorage.getItem("elara-history"
     </article>`).join("");
 }
 
-// ─── Render da API ────────────────────────────────────────────────────────────
-function renderFromApi(data, resume, job) {
-  const { match_score, category_scores, probabilities, critical_gaps, objections, interview_questions, strengths, weaknesses } = data;
+// ─── Análise principal ────────────────────────────────────────────────────────
+async function analyze() {
+  // Exige login
+  if (!auth.token) {
+    openModal("modal-auth");
+    return;
+  }
 
-  console.log("Elara API response:", JSON.stringify(data));
+  const resume = document.getElementById("resume-input").value;
+  const job = document.getElementById("job-input").value;
+
+  const btn = document.getElementById("analyze-button");
+  btn.classList.add("loading");
+  btn.textContent = "Analisando...";
+
+  try {
+    // Tenta chamar a API
+    const res = await fetch(`${API_URL}/match`, {
+      method: "POST",
+      headers: auth.headers(),
+      body: JSON.stringify({
+        profile: {
+          name: "Candidato",
+          seniority: "Sênior",
+          years_experience: 10,
+          education: [],
+          certifications: extractTerms(resume, keywords.certifications),
+          languages: extractTerms(resume, keywords.languages),
+          hard_skills: extractTerms(resume, keywords.skills),
+          soft_skills: [],
+          achievements: [],
+        },
+        job: {
+          title: inferRole(job),
+          description: job,
+          required_skills: extractTerms(job, keywords.skills),
+          required_certifications: extractTerms(job, keywords.certifications),
+          languages: extractTerms(job, keywords.languages),
+        },
+      }),
+    });
+
+    // Limite free atingido
+    if (res.status === 402) {
+      document.getElementById("paywall-banner").classList.add("show");
+      openModal("modal-upgrade");
+      return;
+    }
+
+    // Token expirado
+    if (res.status === 401) {
+      auth.clear();
+      renderAuthArea();
+      openModal("modal-auth");
+      return;
+    }
+
+    if (res.ok) {
+      const data = await res.json();
+      renderFromApi(data, resume, job);
+      await fetchMe(); // atualiza contador
+      return;
+    }
+  } catch (_) {
+    // sem conexão — roda scoring local como fallback
+  }
+
+  // Fallback: scoring local
+  runLocalScoring(resume, job);
+}
+
+function extractTerms(text, termList) {
+  return termList.filter((t) => hasTerm(text, t));
+}
+
+function renderFromApi(data, resume, job) {
+  const { match_score, category_scores, probabilities, critical_gaps, objections, interview_questions, optimized_summary } = data;
 
   updateText("match-score", `${match_score}%`);
   updateText("match-caption",
@@ -291,59 +389,42 @@ function renderFromApi(data, resume, job) {
   updateText("screening-reason", probabilities.explanations[0] || "");
   updateText("interview-reason", probabilities.explanations[1] || "");
   updateText("offer-reason", probabilities.explanations[2] || "");
-  updateText("critical-gaps", critical_gaps?.length
-    ? `Para chegar mais perto de 100%, evidencie: ${critical_gaps.join(", ")}.`
-    : "Poucos gaps críticos detectados. Reforce métricas e resultados.");
+  const strengthsList = document.getElementById("strengths-list");
+  if (strengthsList && data.strengths?.length) {
+    strengthsList.innerHTML = data.strengths.map((s) => `<li>${escapeHtml(s)}</li>`).join("");
+  }
 
-  // Barras de categoria
+  const weaknessesList = document.getElementById("weaknesses-list");
+  if (weaknessesList && data.weaknesses?.length) {
+    weaknessesList.innerHTML = data.weaknesses.map((w) => `<li>${escapeHtml(w)}</li>`).join("");
+  }
+
+  const gapsList = document.getElementById("critical-gaps-list");
+  if (gapsList) {
+    gapsList.innerHTML = critical_gaps.length
+      ? critical_gaps.map((g) => `<li>${escapeHtml(g)}</li>`).join("")
+      : "<li>Poucos gaps críticos detectados. Reforce métricas e resultados.</li>";
+  }
+
   const catMap = { "Experiência": "experience", "Formação": "education", "Skills técnicas": "skills", "Idiomas": "languages", "Certificações": "certifications" };
-  category_scores?.forEach(({ category, score }) => {
+  category_scores.forEach(({ category, score }) => {
     if (catMap[category]) setBar(catMap[category], score);
   });
 
-  // Pontos fortes
-  const strengthsList = document.getElementById("strengths-list");
-  if (strengthsList && strengths?.length) {
-    strengthsList.innerHTML = strengths.map((s) => `<li>${escapeHtml(s)}</li>`).join("");
-  }
-
-  // Pontos fracos
-  const weaknessesList = document.getElementById("weaknesses-list");
-  if (weaknessesList && weaknesses?.length) {
-    weaknessesList.innerHTML = weaknesses.map((w) => `<li>${escapeHtml(w)}</li>`).join("");
-  }
-
-  // Perguntas de entrevista
   const list = document.getElementById("interview-list");
-  if (list) list.innerHTML = (interview_questions || []).map((q) => `<li>${escapeHtml(q)}</li>`).join("");
+  list.innerHTML = interview_questions.map((q) => `<li>${escapeHtml(q)}</li>`).join("");
 
-  // Objeções
-  const objList = document.getElementById("objections-list");
-  if (objList) {
-    objList.innerHTML = (objections || []).map((o) => `
-      <article>
-        <strong>${escapeHtml(o.objection)}</strong>
-        <span>${escapeHtml(o.risk_level)}</span>
-        <p>${escapeHtml(o.best_response)}</p>
-      </article>`).join("");
-  }
+  document.getElementById("objections-list").innerHTML = (objections || []).map((o) => `
+    <article>
+      <strong>${escapeHtml(o.objection)}</strong>
+      <span>${escapeHtml(o.risk_level)}</span>
+      <p>${escapeHtml(o.best_response)}</p>
+    </article>`).join("");
 
   updateRing(match_score);
-
-  currentReport = {
-    role: inferRole(job),
-    match: match_score,
-    screening: probabilities.screening,
-    interview: probabilities.interview,
-    offer: probabilities.offer,
-    gaps: critical_gaps,
-    questions: interview_questions,
-    date: new Date().toLocaleDateString("pt-BR"),
-  };
-  saveHistory(currentReport);
+  finishAnalysis(match_score, probabilities.screening, probabilities.interview, probabilities.offer, critical_gaps, interview_questions, inferRole(job));
 }
 
-// ─── Scoring local (fallback) ─────────────────────────────────────────────────
 function runLocalScoring(resume, job) {
   const scores = Object.keys(keywords).reduce((acc, cat) => {
     acc[cat] = categoryScore(resume, job, cat);
@@ -363,109 +444,61 @@ function runLocalScoring(resume, job) {
   updateText("screening-score", `${screening}%`);
   updateText("interview-score", `${interview}%`);
   updateText("offer-score", `${offer}%`);
-  updateText("screening-reason", "Triagem pondera ATS, senioridade e palavras-chave.");
+  updateText("screening-reason", "Triagem pondera ATS, senioridade e palavras-chave da vaga.");
   updateText("interview-reason", "Entrevista depende de exemplos STAR.");
   updateText("offer-reason", "Oferta considera competição, salário e fit cultural.");
-  updateText("critical-gaps", gaps.length ? `Evidencie: ${gaps.join(", ")}.` : "Reforce métricas e resultados.");
+  const gapsListLocal = document.getElementById("critical-gaps-list");
+  if (gapsListLocal) {
+    gapsListLocal.innerHTML = gaps.length
+      ? gaps.map((g) => `<li>${escapeHtml(g)}</li>`).join("")
+      : "<li>Reforce métricas e resultados.</li>";
+  }
 
   const questions = [
     `Conte uma situação em que você demonstrou ${gaps[0] || "o requisito mais estratégico"}.`,
     "Qual resultado mensurável prova sua aderência para esta vaga?",
-    "Que gap técnico você resolveria nos primeiros 30 dias?",
+    "Que gap você resolveria nos primeiros 30 dias?",
     "Por que sua trajetória faz sentido para este momento da empresa?",
   ];
-  const list = document.getElementById("interview-list");
-  if (list) list.innerHTML = questions.map((q) => `<li>${q}</li>`).join("");
+  document.getElementById("interview-list").innerHTML = questions.map((q) => `<li>${q}</li>`).join("");
 
+  updateObjections(gaps, scores);
+  updateAtsPlan(gaps, scores);
   updateRing(match);
-
-  currentReport = { role, match, screening, interview, offer, gaps, questions, date: new Date().toLocaleDateString("pt-BR") };
-  saveHistory(currentReport);
+  finishAnalysis(match, screening, interview, offer, gaps, questions, role);
 }
 
-// ─── Análise principal ────────────────────────────────────────────────────────
-async function analyze() {
-  if (!auth.token) { openModal("modal-auth"); return; }
+function updateRing(match) {
+  const first = Math.min(match, Math.round(match * 0.34));
+  const second = Math.min(match, Math.round(match * 0.70));
+  document.querySelector(".ring").style.background = `
+    radial-gradient(circle at center, var(--chalk) 0 57%, transparent 58%),
+    conic-gradient(var(--blue) 0 ${first}%, var(--moss) ${first}% ${second}%, var(--mint) ${second}% ${match}%, var(--line) ${match}% 100%)`;
+}
 
-  const resume = document.getElementById("resume-input").value;
-  const job = document.getElementById("job-input").value;
-  const btn = document.getElementById("analyze-button");
-  btn.classList.add("loading");
-  btn.textContent = "Analisando...";
-
-  try {
-    const yearsMatch = resume.match(/(\d+)\s*anos?\s*de\s*experi[eê]ncia/i);
-    const yearsExp = yearsMatch ? parseInt(yearsMatch[1]) : 5;
-    const senioridade = /s[eê]nior|coordenador|gerente|diretor|head/i.test(resume) ? "Sênior"
-      : /pl[eê]no|analista/i.test(resume) ? "Pleno" : "Júnior";
-
-    const res = await fetch(`${API_URL}/match`, {
-      method: "POST",
-      headers: auth.headers(),
-      body: JSON.stringify({
-        profile: {
-          name: "Candidato",
-          seniority: senioridade,
-          years_experience: yearsExp,
-          education: extractTerms(resume, keywords.education),
-          certifications: extractTerms(resume, keywords.certifications),
-          languages: extractTerms(resume, keywords.languages),
-          hard_skills: extractTerms(resume, keywords.skills),
-          soft_skills: [],
-          achievements: [],
-        },
-        job: {
-          title: inferRole(job),
-          description: `CURRÍCULO:\n${resume}\n\nVAGA:\n${job}`,
-          required_skills: extractTerms(job, keywords.skills),
-          required_certifications: extractTerms(job, keywords.certifications),
-          languages: extractTerms(job, keywords.languages),
-        },
-      }),
-    });
-
-    if (res.status === 402) {
-      document.getElementById("paywall-banner").classList.add("show");
-      openModal("modal-upgrade");
-      return;
-    }
-
-    if (res.status === 401) {
-      auth.clear();
-      renderAuthArea();
-      openModal("modal-auth");
-      return;
-    }
-
-    if (res.ok) {
-      const data = await res.json();
-      renderFromApi(data, resume, job);
-      await fetchMe();
-      return;
-    }
-  } catch (e) {
-    console.error("Erro na análise:", e);
-  }
-
-  runLocalScoring(resume, job);
+function finishAnalysis(match, screening, interview, offer, gaps, questions, role) {
+  currentReport = { role, match, screening, interview, offer, gaps, questions, date: new Date().toLocaleDateString("pt-BR") };
+  saveHistory(currentReport);
 }
 
 // ─── Gerar materiais ──────────────────────────────────────────────────────────
 function generateMaterials() {
   if (!auth.token) { openModal("modal-auth"); return; }
+
   const job = document.getElementById("job-input").value;
   const m = job.match(/(?:vaga para|cargo de|posição de)\s+([^,.]+)/i);
   const role = escapeHtml(m ? m[1].trim() : "esta oportunidade");
   const materials = document.getElementById("materials");
+
   materials.hidden = false;
   materials.innerHTML = `
     <article>
       <strong>Carta de apresentação</strong>
-      <p>Olá, tenho interesse em ${role}. Minha experiência conversa diretamente com os desafios descritos na vaga.</p>
+      <p>Olá, tenho interesse em ${role}. Minha experiência em operações, liderança e melhoria de processos conversa diretamente com os desafios descritos.</p>
     </article>
     <article>
       <strong>Mensagem para LinkedIn</strong>
-      <p>Olá! Vi a vaga de ${role} e acredito ter forte aderência ao escopo. Posso compartilhar um resumo da minha experiência?</p>
+      <p>Olá! Vi a vaga de ${role} e acredito ter forte aderência ao escopo. Posso compartilhar um resumo objetivo da minha experiência?</p>
     </article>
     <article>
       <strong>E-mail ao recrutador</strong>
@@ -475,42 +508,52 @@ function generateMaterials() {
 
 // ─── Exportar relatório ───────────────────────────────────────────────────────
 function exportReport() {
+  if (!currentReport) analyze();
   if (!currentReport) return;
+
   const r = currentReport;
   const content = [
-    "Elara Talent — Relatório de candidatura", "",
-    `Vaga: ${r.role}`, `Match geral: ${r.match}%`,
-    `Triagem: ${r.screening}%`, `Entrevista: ${r.interview}%`, `Proposta: ${r.offer}%`, "",
-    "Gaps críticos:", ...(r.gaps?.length ? r.gaps.map((g) => `- ${g}`) : ["- Reforçar métricas."]), "",
-    "Perguntas:", ...(r.questions || []).map((q) => `- ${q}`),
+    "Elara Talent - Relatório de candidatura", "",
+    `Vaga: ${r.role}`,
+    `Match geral: ${r.match}%`,
+    `Probabilidade de triagem: ${r.screening}%`,
+    `Probabilidade de entrevista: ${r.interview}%`,
+    `Probabilidade de proposta: ${r.offer}%`, "",
+    "Gaps críticos:",
+    ...(r.gaps?.length ? r.gaps.map((g) => `- ${g}`) : ["- Reforçar métricas e resultados."]), "",
+    "Perguntas de entrevista:",
+    ...(r.questions || []).map((q) => `- ${q}`),
   ].join("\n");
+
   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "elara-relatorio.txt";
+  link.download = "elaratalent-relatorio.txt";
   link.click();
   URL.revokeObjectURL(url);
 }
 
 // ─── Event listeners ──────────────────────────────────────────────────────────
-document.getElementById("analyze-button")?.addEventListener("click", async () => {
-  await analyze();
+document.getElementById("analyze-button").addEventListener("click", async () => {
   const btn = document.getElementById("analyze-button");
-  if (btn) { btn.classList.remove("loading"); btn.textContent = "Analisar match"; }
+  await analyze();
+  btn.classList.remove("loading");
+  btn.textContent = "Analisar match";
 });
 
-document.getElementById("export-report-button")?.addEventListener("click", exportReport);
-document.getElementById("generate-kit-button")?.addEventListener("click", generateMaterials);
-document.getElementById("top-copilot-button")?.addEventListener("click", () =>
-  document.getElementById("copilot")?.scrollIntoView({ behavior: "smooth" })
+document.getElementById("export-report-button").addEventListener("click", exportReport);
+document.getElementById("generate-kit-button").addEventListener("click", generateMaterials);
+document.getElementById("top-copilot-button").addEventListener("click", () =>
+  document.getElementById("copilot").scrollIntoView({ behavior: "smooth" })
 );
-document.getElementById("paste-job-button")?.addEventListener("click", () =>
-  document.getElementById("job-input")?.focus()
+document.getElementById("paste-job-button").addEventListener("click", () =>
+  document.getElementById("job-input").focus()
 );
 
+// Fecha modais clicando fora
 ["modal-auth", "modal-upgrade"].forEach((id) => {
-  document.getElementById(id)?.addEventListener("click", (e) => {
+  document.getElementById(id).addEventListener("click", (e) => {
     if (e.target === e.currentTarget) closeModal(id);
   });
 });
