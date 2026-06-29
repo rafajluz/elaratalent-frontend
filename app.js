@@ -337,7 +337,7 @@ async function analyze() {
           languages: extractTerms(resume, keywords.languages),
           hard_skills: extractTerms(resume, keywords.skills),
           soft_skills: [],
-          achievements: [resume.substring(0, 500)],
+          achievements: [],
         },
         job: {
           title: inferRole(job),
