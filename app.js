@@ -345,9 +345,7 @@ async function analyze() {
   required_skills: extractTerms(job, keywords.skills),
   required_certifications: extractTerms(job, keywords.certifications),
   languages: extractTerms(job, keywords.languages),
-},
-      }),
-    });
+        },
       }),
     });
 
