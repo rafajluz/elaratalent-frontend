@@ -315,23 +315,29 @@ async function analyze() {
   const btn = document.getElementById("analyze-button");
   btn.classList.add("loading");
   btn.textContent = "Analisando...";
+// Extrai anos de experiência do texto
+    const yearsMatch = resume.match(/(\d+)\s*anos?\s*de\s*experi[eê]ncia/i);
+    const yearsExp = yearsMatch ? parseInt(yearsMatch[1]) : 5;
 
-  try {
-    // Tenta chamar a API
+    // Detecta senioridade
+    const senioridade = /s[eê]nior|coordenador|gerente|diretor|head/i.test(resume)
+      ? "Sênior" : /pl[eê]no|analista/i.test(resume) ? "Pleno" : "Júnior";
+
+    // Chama a API
     const res = await fetch(`${API_URL}/match`, {
       method: "POST",
       headers: auth.headers(),
       body: JSON.stringify({
         profile: {
           name: "Candidato",
-          seniority: "Sênior",
-          years_experience: 10,
-          education: [],
+          seniority: senioridade,
+          years_experience: yearsExp,
+          education: extractTerms(resume, keywords.education),
           certifications: extractTerms(resume, keywords.certifications),
           languages: extractTerms(resume, keywords.languages),
           hard_skills: extractTerms(resume, keywords.skills),
           soft_skills: [],
-          achievements: [],
+          achievements: [resume.substring(0, 500)],
         },
         job: {
           title: inferRole(job),
@@ -340,6 +346,8 @@ async function analyze() {
           required_certifications: extractTerms(job, keywords.certifications),
           languages: extractTerms(job, keywords.languages),
         },
+      }),
+    });
       }),
     });
 
