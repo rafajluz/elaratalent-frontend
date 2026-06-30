@@ -279,6 +279,7 @@ function updateAtsPlan(gaps, scores) {
 
 // ─── Histórico ────────────────────────────────────────────────────────────────
 let currentReport = null;
+let lastApiData = null;
 
 function saveHistory(report) {
   const history = JSON.parse(localStorage.getItem("elaratalent-history") || "[]");
@@ -382,6 +383,7 @@ function extractTerms(text, termList) {
 }
 
 function renderFromApi(data, resume, job) {
+  lastApiData = data;
   const { match_score, category_scores, probabilities, critical_gaps, objections, interview_questions, optimized_summary } = data;
 
   updateText("match-score", `${match_score}%`);
@@ -429,6 +431,11 @@ function renderFromApi(data, resume, job) {
     </article>`).join("");
 
   if (optimized_summary) updateText("pitch-text", optimized_summary);
+
+  const atsPlan = document.getElementById("ats-plan");
+  if (atsPlan && data.ats_tips?.length) {
+    atsPlan.innerHTML = data.ats_tips.map((t) => `<span>${escapeHtml(t)}</span>`).join("");
+  }
 
   updateRing(match_score);
   finishAnalysis(match_score, probabilities.screening, probabilities.interview, probabilities.offer, critical_gaps, interview_questions, inferRole(job));
@@ -495,23 +502,41 @@ function generateMaterials() {
   if (!auth.token) { openModal("modal-auth"); return; }
 
   const job = document.getElementById("job-input").value;
-  const m = job.match(/(?:vaga para|cargo de|posição de)\s+([^,.]+)/i);
-  const role = escapeHtml(m ? m[1].trim() : "esta oportunidade");
+  const role = escapeHtml(inferRole(job));
   const materials = document.getElementById("materials");
+
+  const pitch = lastApiData?.optimized_summary || "";
+  const strengths = lastApiData?.strengths || [];
+  const s1 = strengths[0] ? escapeHtml(strengths[0]) : "";
+  const s2 = strengths[1] ? escapeHtml(strengths[1]) : "";
+  const topStrengths = [s1, s2].filter(Boolean).join(" e ");
+
+  const coverLetter = pitch
+    ? escapeHtml(pitch)
+    : `Tenho interesse em ${role} e acredito que minha trajetória está alinhada com os desafios descritos na vaga.`;
+
+  const linkedInMsg = s1
+    ? `Vi a vaga de ${role} e acredito ter forte aderência. Meu principal diferencial: ${s1}. Podemos conversar?`
+    : `Vi a vaga de ${role} e acredito ter forte aderência ao escopo. Posso compartilhar um resumo objetivo?`;
+
+  const emailMsg = pitch
+    ? escapeHtml(pitch)
+    : `Tenho interesse na posição de ${role} e destaco${topStrengths ? `: ${topStrengths}` : " minha experiência na área"}.`;
 
   materials.hidden = false;
   materials.innerHTML = `
     <article>
       <strong>Carta de apresentação</strong>
-      <p>Olá, tenho interesse em ${role}. Minha experiência em operações, liderança e melhoria de processos conversa diretamente com os desafios descritos.</p>
+      <p>${coverLetter}</p>
     </article>
     <article>
       <strong>Mensagem para LinkedIn</strong>
-      <p>Olá! Vi a vaga de ${role} e acredito ter forte aderência ao escopo. Posso compartilhar um resumo objetivo da minha experiência?</p>
+      <p>${linkedInMsg}</p>
     </article>
     <article>
       <strong>E-mail ao recrutador</strong>
-      <p>Assunto: Candidatura para ${role}. Envio meu interesse na posição e destaco minha experiência com liderança, processos e indicadores.</p>
+      <p>Assunto: Candidatura para ${role}.</p>
+      <p>${emailMsg}</p>
     </article>`;
 }
 
