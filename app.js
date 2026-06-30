@@ -330,6 +330,7 @@ async function analyze() {
           hard_skills: extractTerms(resume, keywords.skills),
           soft_skills: [],
           achievements: [],
+          resume_text: resume,
         },
         job: {
           title: inferRole(job),
