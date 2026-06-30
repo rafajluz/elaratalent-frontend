@@ -428,6 +428,8 @@ function renderFromApi(data, resume, job) {
       <p>${escapeHtml(o.best_response)}</p>
     </article>`).join("");
 
+  if (optimized_summary) updateText("pitch-text", optimized_summary);
+
   updateRing(match_score);
   finishAnalysis(match_score, probabilities.screening, probabilities.interview, probabilities.offer, critical_gaps, interview_questions, inferRole(job));
 }
