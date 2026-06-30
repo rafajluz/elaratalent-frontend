@@ -113,6 +113,7 @@ async function fetchMe() {
     // sem conexão — mantém estado local
   }
   renderAuthArea();
+  renderMetrics();
 }
 
 // ─── Auth modal ───────────────────────────────────────────────────────────────
@@ -291,6 +292,14 @@ function saveHistory(report) {
 
 function renderMetrics() {
   const history = JSON.parse(localStorage.getItem("elaratalent-history") || "[]");
+
+  // Contador vem do servidor (analyses_used) para ser preciso em qualquer dispositivo
+  const count = auth.user?.analyses_used ?? history.length;
+  if (!count && !history.length) return;
+
+  updateText("metric-count", count);
+  updateText("metric-count-sub", count === 1 ? "análise realizada" : "análises realizadas");
+
   if (!history.length) return;
 
   const best = history.reduce((b, h) => h.match > b.match ? h : b, history[0]);
@@ -299,8 +308,6 @@ function renderMetrics() {
   const oldest = history[history.length - 1];
   const atsEvolution = newest.match - oldest.match;
 
-  updateText("metric-count", history.length);
-  updateText("metric-count-sub", history.length === 1 ? "análise realizada" : "análises realizadas");
   updateText("metric-best-match", `${best.match}%`);
   updateText("metric-best-role", best.role);
   updateText("metric-interview", `${bestInterview}%`);
