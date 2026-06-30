@@ -618,8 +618,11 @@ document.getElementById("resume-file")?.addEventListener("change", async (e) => 
       if (strongEl) strongEl.textContent = "Currículo carregado ✓";
       if (smallEl) smallEl.textContent = file.name;
     } else {
-      const err = await res.json().catch(() => ({}));
-      alert(err.detail || "Erro ao ler o ficheiro. Cola o texto manualmente.");
+      const rawText = await res.text().catch(() => "");
+      let detail = "";
+      try { detail = JSON.parse(rawText).detail; } catch {}
+      const msg = detail || (res.status === 404 ? "Endpoint não encontrado — aguarda o redeploy do servidor (~2 min) e tenta de novo." : `Erro ${res.status}: ${rawText.slice(0, 120)}`);
+      alert(msg);
       if (strongEl) strongEl.textContent = origStrong;
       if (smallEl) smallEl.textContent = origSmall;
     }
