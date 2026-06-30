@@ -286,6 +286,27 @@ function saveHistory(report) {
   const next = [report, ...history].slice(0, 5);
   localStorage.setItem("elaratalent-history", JSON.stringify(next));
   renderHistory(next);
+  renderMetrics();
+}
+
+function renderMetrics() {
+  const history = JSON.parse(localStorage.getItem("elaratalent-history") || "[]");
+  if (!history.length) return;
+
+  const best = history.reduce((b, h) => h.match > b.match ? h : b, history[0]);
+  const bestInterview = Math.max(...history.map((h) => h.interview));
+  const newest = history[0];
+  const oldest = history[history.length - 1];
+  const atsEvolution = newest.match - oldest.match;
+
+  updateText("metric-count", history.length);
+  updateText("metric-count-sub", history.length === 1 ? "análise realizada" : "análises realizadas");
+  updateText("metric-best-match", `${best.match}%`);
+  updateText("metric-best-role", best.role);
+  updateText("metric-interview", `${bestInterview}%`);
+  updateText("metric-interview-sub", "melhor probabilidade");
+  updateText("metric-ats", history.length > 1 ? (atsEvolution >= 0 ? `+${atsEvolution}` : `${atsEvolution}`) : `${newest.match}%`);
+  updateText("metric-ats-sub", history.length > 1 ? "vs. primeira análise" : "match mais recente");
 }
 
 function renderHistory(history = JSON.parse(localStorage.getItem("elaratalent-history") || "[]")) {
@@ -644,5 +665,6 @@ document.getElementById("resume-file")?.addEventListener("change", async (e) => 
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 renderHistory();
+renderMetrics();
 renderAuthArea();
 if (auth.token) fetchMe();
