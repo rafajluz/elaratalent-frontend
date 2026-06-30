@@ -581,9 +581,56 @@ document.getElementById("generate-kit-button").addEventListener("click", generat
 document.getElementById("top-copilot-button")?.addEventListener("click", () =>
   document.getElementById("copilot").scrollIntoView({ behavior: "smooth" })
 );
-document.getElementById("paste-job-button").addEventListener("click", () =>
-  document.getElementById("job-input").focus()
-);
+document.getElementById("paste-job-button").addEventListener("click", () => {
+  const jobInput = document.getElementById("job-input");
+  jobInput.scrollIntoView({ behavior: "smooth" });
+  jobInput.focus();
+});
+
+document.getElementById("resume-file")?.addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const label = e.target.closest("label");
+  const strongEl = label?.querySelector("strong");
+  const smallEl = label?.querySelector("small");
+  const origStrong = strongEl?.textContent;
+  const origSmall = smallEl?.textContent;
+
+  if (strongEl) strongEl.textContent = "Carregando...";
+  if (smallEl) smallEl.textContent = file.name;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await fetch(`${API_URL}/parse-resume`, {
+      method: "POST",
+      headers: auth.token ? { Authorization: `Bearer ${auth.token}` } : {},
+      body: formData,
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const resumeInput = document.getElementById("resume-input");
+      resumeInput.value = data.text;
+      resumeInput.scrollIntoView({ behavior: "smooth" });
+      if (strongEl) strongEl.textContent = "Currículo carregado ✓";
+      if (smallEl) smallEl.textContent = file.name;
+    } else {
+      const err = await res.json().catch(() => ({}));
+      alert(err.detail || "Erro ao ler o ficheiro. Cola o texto manualmente.");
+      if (strongEl) strongEl.textContent = origStrong;
+      if (smallEl) smallEl.textContent = origSmall;
+    }
+  } catch (err) {
+    alert("Erro ao carregar ficheiro: " + err.message);
+    if (strongEl) strongEl.textContent = origStrong;
+    if (smallEl) smallEl.textContent = origSmall;
+  } finally {
+    e.target.value = "";
+  }
+});
 
 // Fecha modais clicando fora
 ["modal-auth", "modal-upgrade"].forEach((id) => {
