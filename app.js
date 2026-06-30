@@ -544,11 +544,31 @@ function generateMaterials() {
     ? escapeHtml(pitch)
     : `Tenho interesse na posição de ${role} e destaco${topStrengths ? `: ${topStrengths}` : " minha experiência na área"}.`;
 
+  const atsTips = lastApiData?.ats_tips || [];
+  const gaps = lastApiData?.critical_gaps || [];
+  const cvAts = atsTips.length
+    ? `<ul>${atsTips.map((t) => `<li>${escapeHtml(t)}</li>`).join("")}</ul>`
+    : gaps.length
+    ? `<ul>${gaps.slice(0, 3).map((g) => `<li>Acrescentar evidências de: ${escapeHtml(g)}</li>`).join("")}</ul>`
+    : `<p>Corre a análise para gerar o plano personalizado.</p>`;
+
+  const networking = `<ol>
+    <li>Pesquisa pessoas que trabalham ou trabalharam em ${role} no LinkedIn.</li>
+    <li>Envia pedido de ligação com nota: <em>"Vi a vaga de ${role} e a vossa área é muito alinhada com o meu percurso — posso partilhar um resumo?"</em></li>
+    <li>Se aceite, envia mensagem curta com o teu diferencial principal${s1 ? `: ${s1}` : ""}.</li>
+    <li>Pede 15 minutos de conversa informal antes de aplicares formalmente.</li>
+    <li>Após a conversa, aplica referenciando o nome do contacto na candidatura.</li>
+  </ol>`;
+
   materials.hidden = false;
   materials.innerHTML = `
     <article>
       <strong>Carta de apresentação</strong>
       <p>${coverLetter}</p>
+    </article>
+    <article>
+      <strong>Currículo adaptado para ATS</strong>
+      ${cvAts}
     </article>
     <article>
       <strong>Mensagem para LinkedIn</strong>
@@ -558,6 +578,10 @@ function generateMaterials() {
       <strong>E-mail ao recrutador</strong>
       <p>Assunto: Candidatura para ${role}.</p>
       <p>${emailMsg}</p>
+    </article>
+    <article>
+      <strong>Roteiro de networking</strong>
+      ${networking}
     </article>`;
 }
 
