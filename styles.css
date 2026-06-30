@@ -316,6 +316,12 @@ a:focus {
   border-color: var(--moss);
 }
 
+.url-hint {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: rgba(24, 32, 27, 0.45);
+}
+
 .metrics {
   grid-template-columns: repeat(4, 1fr);
 }
