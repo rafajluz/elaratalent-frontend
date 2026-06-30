@@ -77,12 +77,16 @@
             <p class="eyebrow">Vaga alvo</p>
             <h2>Descrição da vaga</h2>
           </div>
-          <textarea id="job-input" rows="8" placeholder="Cole aqui a descrição da vaga..."></textarea>
+          <div class="url-row">
+            <input type="url" id="job-url-input" placeholder="Cole o link da vaga (opcional)..." />
+            <button id="fetch-job-button" class="secondary">Buscar</button>
+          </div>
+          <textarea id="job-input" rows="8" placeholder="Ou cole aqui o texto da vaga..."></textarea>
         </article>
         <article class="panel command-panel">
           <p class="eyebrow">Ação</p>
           <h2>Análise guiada</h2>
-          <p>Use os textos de exemplo ou cole uma vaga real. A Hera calcula aderência, probabilidades, gaps e kit de candidatura.</p>
+          <p>Cole o texto ou o link de uma vaga real. A Elara calcula aderência, probabilidades, gaps e kit de candidatura.</p>
           <div class="button-stack">
             <button id="analyze-button">Analisar match</button>
             <button class="secondary" id="export-report-button">Exportar relatório</button>

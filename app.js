@@ -632,6 +632,37 @@ document.getElementById("paste-job-button").addEventListener("click", () => {
   jobInput.focus();
 });
 
+document.getElementById("fetch-job-button")?.addEventListener("click", async () => {
+  const url = document.getElementById("job-url-input").value.trim();
+  if (!url) return;
+
+  const btn = document.getElementById("fetch-job-button");
+  btn.textContent = "Buscando...";
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`${API_URL}/fetch-job`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      document.getElementById("job-input").value = data.text;
+      document.getElementById("job-input").scrollIntoView({ behavior: "smooth" });
+    } else {
+      const err = await res.json().catch(() => ({}));
+      alert(err.detail || "Não foi possível extrair o texto da vaga. Cola manualmente.");
+    }
+  } catch (err) {
+    alert("Erro ao buscar a vaga: " + err.message);
+  } finally {
+    btn.textContent = "Buscar";
+    btn.disabled = false;
+  }
+});
+
 document.getElementById("resume-file")?.addEventListener("change", async (e) => {
   const file = e.target.files?.[0];
   if (!file) return;

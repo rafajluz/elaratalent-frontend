@@ -295,6 +295,27 @@ a:focus {
   gap: 10px;
 }
 
+.url-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.url-row input[type="url"] {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+  background: var(--chalk);
+  color: var(--ink);
+  outline: none;
+}
+
+.url-row input[type="url"]:focus {
+  border-color: var(--moss);
+}
+
 .metrics {
   grid-template-columns: repeat(4, 1fr);
 }
