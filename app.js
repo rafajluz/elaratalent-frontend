@@ -139,6 +139,41 @@ document.getElementById("auth-toggle").addEventListener("click", () =>
   setAuthMode(authMode === "login" ? "register" : "login")
 );
 
+// ─── Esqueceu a senha ─────────────────────────────────────────────────────────
+function showForgotForm(show) {
+  document.getElementById("auth-login-form").style.display = show ? "none" : "block";
+  document.getElementById("auth-forgot-form").style.display = show ? "block" : "none";
+  document.getElementById("auth-modal-title").textContent = show ? "Recuperar senha" : (authMode === "register" ? "Criar conta grátis" : "Entrar");
+  showError("auth-error", "");
+}
+
+document.getElementById("auth-forgot").addEventListener("click", () => showForgotForm(true));
+document.getElementById("forgot-back").addEventListener("click", () => showForgotForm(false));
+
+document.getElementById("forgot-submit").addEventListener("click", async () => {
+  const email = document.getElementById("forgot-email").value.trim();
+  if (!email) { showError("auth-error", "Indica o teu e-mail."); return; }
+
+  const btn = document.getElementById("forgot-submit");
+  btn.classList.add("loading");
+  showError("auth-error", "");
+
+  try {
+    const res = await fetch(`${API_URL}/auth/forgot-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json();
+    showError("auth-error", data.message || "Link enviado.");
+    document.getElementById("auth-error").style.color = "#4f6a56";
+  } catch (_) {
+    showError("auth-error", "Erro de conexão. Tenta de novo.");
+  } finally {
+    btn.classList.remove("loading");
+  }
+});
+
 document.getElementById("auth-submit").addEventListener("click", async () => {
   const email = document.getElementById("auth-email").value.trim();
   const password = document.getElementById("auth-password").value;
@@ -719,10 +754,48 @@ document.getElementById("resume-file")?.addEventListener("change", async (e) => 
 });
 
 // Fecha modais clicando fora
-["modal-auth", "modal-upgrade"].forEach((id) => {
+["modal-auth", "modal-upgrade", "modal-reset"].forEach((id) => {
   document.getElementById(id).addEventListener("click", (e) => {
     if (e.target === e.currentTarget) closeModal(id);
   });
+});
+
+// ─── Reset de senha (via link no e-mail) ─────────────────────────────────────
+const resetToken = new URLSearchParams(window.location.search).get("reset");
+if (resetToken) {
+  openModal("modal-reset");
+  history.replaceState({}, "", window.location.pathname);
+}
+
+document.getElementById("reset-submit").addEventListener("click", async () => {
+  const pwd = document.getElementById("reset-password").value;
+  const confirm = document.getElementById("reset-password-confirm").value;
+  if (!pwd || pwd.length < 6) { showError("reset-error", "A senha deve ter pelo menos 6 caracteres."); return; }
+  if (pwd !== confirm) { showError("reset-error", "As senhas não coincidem."); return; }
+
+  const btn = document.getElementById("reset-submit");
+  btn.classList.add("loading");
+  showError("reset-error", "");
+
+  try {
+    const res = await fetch(`${API_URL}/auth/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: resetToken, new_password: pwd }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      closeModal("modal-reset");
+      alert(data.message);
+      openModal("modal-auth");
+    } else {
+      showError("reset-error", data.detail || "Erro ao redefinir.");
+    }
+  } catch (_) {
+    showError("reset-error", "Erro de conexão. Tenta de novo.");
+  } finally {
+    btn.classList.remove("loading");
+  }
 });
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
