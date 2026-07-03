@@ -801,6 +801,67 @@ document.getElementById("fetch-job-button")?.addEventListener("click", async () 
   }
 });
 
+// ─── Deteção de dados pessoais sensíveis no currículo ────────────────────────
+function isValidCPF(digits) {
+  if (digits.length !== 11 || /^(\d)\1{10}$/.test(digits)) return false;
+  const calc = (len) => {
+    let sum = 0;
+    for (let i = 0; i < len; i++) sum += parseInt(digits[i], 10) * (len + 1 - i);
+    const rev = (sum * 10) % 11;
+    return rev === 10 ? 0 : rev;
+  };
+  return calc(9) === parseInt(digits[9], 10) && calc(10) === parseInt(digits[10], 10);
+}
+
+const PII_PATTERNS = [
+  { label: "CPF", regex: /\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g, validate: (m) => isValidCPF(m.replace(/\D/g, "")) },
+  { label: "telefone", regex: /\(?\b\d{2}\)?[\s.-]?9?\d{4}[\s.-]?\d{4}\b/g },
+  { label: "e-mail", regex: /[\w.+-]+@[\w-]+\.[a-zA-Z.]{2,}/g },
+  { label: "CEP", regex: /\b\d{5}-?\d{3}\b/g },
+  { label: "data de nascimento", regex: /(data de nascimento|nascido[a]? em|nasc\.?)\s*:?\s*(\d{1,2}[/\-.]\d{1,2}[/\-.]\d{2,4})/gi },
+  { label: "RG", regex: /\bRG\s*:?\s*[\d.\-xX]{5,}/gi },
+  { label: "CNH", regex: /\bCNH\s*:?\s*\d{6,}/gi },
+  { label: "passaporte", regex: /\bpassaporte\s*:?\s*[A-Za-z0-9]{6,}/gi },
+  { label: "dados bancários", regex: /\b(ag[êe]ncia|conta corrente|conta banc[áa]ria|chave pix)\s*:?\s*[\w.\-]{3,}/gi },
+];
+
+function detectSensitiveInfo(text) {
+  const found = [];
+  for (const { label, regex, validate } of PII_PATTERNS) {
+    const matches = text.match(regex) || [];
+    const valid = validate ? matches.filter(validate) : matches;
+    if (valid.length) found.push(label);
+  }
+  return found;
+}
+
+function redactSensitiveInfo(text) {
+  let result = text;
+  for (const { regex, validate } of PII_PATTERNS) {
+    result = result.replace(regex, (m) => (!validate || validate(m) ? "[removido]" : m));
+  }
+  return result;
+}
+
+function checkPiiBanner() {
+  const text = document.getElementById("resume-input").value;
+  const banner = document.getElementById("pii-banner");
+  if (!banner) return;
+  banner.hidden = detectSensitiveInfo(text).length === 0;
+}
+
+document.getElementById("pii-remove-button")?.addEventListener("click", () => {
+  const input = document.getElementById("resume-input");
+  input.value = redactSensitiveInfo(input.value);
+  document.getElementById("pii-banner").hidden = true;
+});
+
+document.getElementById("pii-keep-button")?.addEventListener("click", () => {
+  document.getElementById("pii-banner").hidden = true;
+});
+
+document.getElementById("resume-input")?.addEventListener("blur", checkPiiBanner);
+
 document.getElementById("resume-file")?.addEventListener("change", async (e) => {
   const file = e.target.files?.[0];
   if (!file) return;
@@ -829,6 +890,7 @@ document.getElementById("resume-file")?.addEventListener("change", async (e) => 
       const resumeInput = document.getElementById("resume-input");
       resumeInput.value = data.text;
       resumeInput.scrollIntoView({ behavior: "smooth" });
+      checkPiiBanner();
       if (strongEl) strongEl.textContent = "Currículo carregado ✓";
       if (smallEl) smallEl.textContent = file.name;
     } else {

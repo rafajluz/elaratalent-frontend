@@ -686,6 +686,24 @@ ol {
 .paywall-banner p { margin: 0 0 12px; color: rgba(24,32,27,0.72); }
 .paywall-banner button { padding: 11px 24px; }
 
+/* PII detection banner */
+.pii-banner {
+  background: #fff8f3;
+  border: 1px solid rgba(255, 107, 53, 0.35);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-top: 12px;
+}
+.pii-banner p {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: rgba(24, 32, 27, 0.8);
+}
+.pii-banner-actions {
+  display: flex;
+  gap: 8px;
+}
+
 /* Loading state */
 button.loading { opacity: 0.6; pointer-events: none; }
 
