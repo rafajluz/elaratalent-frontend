@@ -71,6 +71,7 @@
             <h2>Currículo</h2>
           </div>
           <textarea id="resume-input" rows="8" placeholder="Cole aqui o texto do seu currículo..."></textarea>
+          <button class="secondary" id="search-jobs-button">Buscar vagas compatíveis</button>
         </article>
         <article class="panel input-panel">
           <div>
@@ -94,6 +95,15 @@
           </div>
           <div class="usage-counter" id="usage-info"></div>
         </article>
+      </section>
+
+      <section class="panel" id="job-results-panel" hidden>
+        <div>
+          <p class="eyebrow">Vagas reais</p>
+          <h2>Vagas compatíveis encontradas</h2>
+          <p class="section-hint">Resultados da Adzuna com base no seu currículo. O score aqui é uma estimativa rápida por palavras-chave — use "Analisar em detalhe" para a análise completa.</p>
+        </div>
+        <div class="job-results-list" id="job-results-list"></div>
       </section>
 
       <section class="metrics">

@@ -363,6 +363,100 @@ function renderHistory(history = JSON.parse(localStorage.getItem("elaratalent-hi
     </article>`).join("");
 }
 
+// ─── Busca de vagas compatíveis (Adzuna) ──────────────────────────────────────
+let lastJobResults = [];
+
+async function searchJobs() {
+  if (!auth.token) {
+    openModal("modal-auth");
+    return;
+  }
+
+  const resume = document.getElementById("resume-input").value.trim();
+  if (!resume) {
+    alert("Cole o texto do currículo antes de buscar vagas.");
+    return;
+  }
+
+  const btn = document.getElementById("search-jobs-button");
+  btn.textContent = "Buscando...";
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(`${API_URL}/search-jobs`, {
+      method: "POST",
+      headers: auth.headers(),
+      body: JSON.stringify({ resume_text: resume }),
+    });
+
+    if (res.status === 401) {
+      auth.clear();
+      renderAuthArea();
+      openModal("modal-auth");
+      return;
+    }
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.detail || `Erro ao buscar vagas (status ${res.status}).`);
+      return;
+    }
+
+    const data = await res.json();
+    renderJobResults(data.jobs);
+  } catch (err) {
+    alert("Erro de conexão ao buscar vagas: " + err.message);
+  } finally {
+    btn.textContent = "Buscar vagas compatíveis";
+    btn.disabled = false;
+  }
+}
+
+function renderJobResults(jobs = []) {
+  lastJobResults = jobs;
+  const panel = document.getElementById("job-results-panel");
+  const list = document.getElementById("job-results-list");
+
+  if (!jobs.length) {
+    list.innerHTML = `<p>Nenhuma vaga encontrada agora. Tente novamente mais tarde ou ajuste o currículo.</p>`;
+    panel.hidden = false;
+    panel.scrollIntoView({ behavior: "smooth" });
+    return;
+  }
+
+  list.innerHTML = jobs.map((job, i) => `
+    <article>
+      <strong>${escapeHtml(job.title)}</strong>
+      <span class="job-meta">${escapeHtml(job.company || "Empresa não informada")} · ${escapeHtml(job.location || "Local não informado")}</span>
+      <span class="job-score">Match estimado ${job.match_score}%</span>
+      <p>${escapeHtml(job.description_snippet)}</p>
+      <div class="job-actions">
+        <button class="secondary" data-job-index="${i}" data-action="view">Ver vaga</button>
+        <button data-job-index="${i}" data-action="analyze">Analisar em detalhe</button>
+      </div>
+    </article>`).join("");
+
+  panel.hidden = false;
+  panel.scrollIntoView({ behavior: "smooth" });
+}
+
+document.getElementById("job-results-list")?.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-action]");
+  if (!btn) return;
+  const job = lastJobResults[Number(btn.dataset.jobIndex)];
+  if (!job) return;
+
+  if (btn.dataset.action === "view") {
+    window.open(job.url, "_blank", "noopener");
+  } else if (btn.dataset.action === "analyze") {
+    document.getElementById("job-input").value = job.description_snippet;
+    document.getElementById("job-input").scrollIntoView({ behavior: "smooth" });
+    document.getElementById("analyze-button").click();
+  }
+});
+
+document.getElementById("search-jobs-button")?.addEventListener("click", searchJobs);
+
 // ─── Análise principal ────────────────────────────────────────────────────────
 async function analyze() {
   // Exige login

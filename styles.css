@@ -449,6 +449,46 @@ a:focus {
   font-weight: 750;
 }
 
+.job-results-list {
+  display: grid;
+  gap: 12px;
+}
+
+.job-results-list article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  padding: 14px;
+  display: grid;
+  gap: 6px;
+}
+
+.job-results-list strong {
+  display: block;
+}
+
+.job-results-list .job-meta {
+  font-size: 13px;
+  color: rgba(24, 32, 27, 0.62);
+}
+
+.job-results-list .job-score {
+  display: inline-block;
+  border-radius: 999px;
+  background: var(--mint);
+  color: var(--ink);
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 750;
+  width: fit-content;
+}
+
+.job-results-list .job-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
 .objections p {
   margin-bottom: 0;
   font-size: 14px;
