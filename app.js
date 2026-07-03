@@ -449,7 +449,9 @@ document.getElementById("job-results-list")?.addEventListener("click", (e) => {
   if (btn.dataset.action === "view") {
     window.open(job.url, "_blank", "noopener");
   } else if (btn.dataset.action === "analyze") {
-    document.getElementById("job-input").value = job.description_snippet;
+    // "Vaga para X" no início ajuda o inferRole() a extrair o cargo real,
+    // em vez de cair no fallback "Vaga analisada" (a Adzuna não escreve nesse formato).
+    document.getElementById("job-input").value = `Vaga para ${job.title}\n\n${job.description_snippet}`;
     document.getElementById("job-input").scrollIntoView({ behavior: "smooth" });
     document.getElementById("analyze-button").click();
   }
