@@ -20,8 +20,8 @@ const auth = {
     localStorage.removeItem("ca_user");
   },
 
-  isPremium() {
-    return this.user && this.user.plan !== "free";
+  hasCredits() {
+    return this.user && this.user.credits > 0;
   },
 
   headers() {
@@ -63,7 +63,7 @@ function closeModal(id) {
 function renderAuthArea() {
   const area = document.getElementById("auth-area");
   const used = auth.user?.analyses_used ?? 0;
-  const limit = 3;
+  const limit = 2;
 
   if (!auth.token) {
     area.innerHTML = `<button id="btn-open-login">Entrar / Cadastrar</button>`;
@@ -72,14 +72,14 @@ function renderAuthArea() {
     return;
   }
 
-  const planLabel = auth.isPremium() ? auth.user.plan : "free";
-  const premiumClass = auth.isPremium() ? "premium" : "";
+  const credits = auth.user?.credits ?? 0;
+  const creditsLabel = `${credits} crédito${credits === 1 ? "" : "s"}`;
 
   area.innerHTML = `
     <div class="user-bar">
       <span style="font-size:13px;color:rgba(24,32,27,0.62);">${escapeHtml(auth.user.email)}</span>
-      <span class="plan-badge ${premiumClass}">${planLabel.toUpperCase()}</span>
-      ${!auth.isPremium() ? `<button class="btn-upgrade" id="btn-open-upgrade-top">Upgrade</button>` : ""}
+      <span class="plan-badge ${auth.hasCredits() ? "premium" : ""}">${creditsLabel.toUpperCase()}</span>
+      <button class="btn-upgrade" id="btn-open-upgrade-top">Comprar créditos</button>
       <button class="btn-logout" id="btn-logout">Sair</button>
     </div>`;
 
@@ -89,11 +89,14 @@ function renderAuthArea() {
     document.getElementById("paywall-banner").classList.remove("show");
   });
 
-  if (!auth.isPremium()) {
-    document.getElementById("btn-open-upgrade-top")?.addEventListener("click", () => openModal("modal-upgrade"));
-    document.getElementById("usage-info").textContent = `${used} de ${limit} análises gratuitas usadas`;
+  document.getElementById("btn-open-upgrade-top")?.addEventListener("click", () => openModal("modal-upgrade"));
+
+  if (used < limit) {
+    document.getElementById("usage-info").textContent = `${used} de ${limit} análises gratuitas usadas · ${creditsLabel} disponíve${credits === 1 ? "l" : "is"}`;
   } else {
-    document.getElementById("usage-info").textContent = "Plano Pro — análises ilimitadas";
+    document.getElementById("usage-info").textContent = auth.hasCredits()
+      ? `Análises gratuitas esgotadas · ${creditsLabel} disponíve${credits === 1 ? "l" : "is"}`
+      : `Análises gratuitas esgotadas · sem créditos`;
   }
 }
 
@@ -196,7 +199,7 @@ document.getElementById("auth-submit").addEventListener("click", async () => {
       });
       data = await res.json();
       if (!res.ok) { showError("auth-error", data.detail || "Erro ao cadastrar."); return; }
-      auth.save(data.access_token, { email, plan: "free", analyses_used: 0 });
+      auth.save(data.access_token, { email, credits: 0, analyses_used: 0 });
     } else {
       res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
@@ -205,7 +208,7 @@ document.getElementById("auth-submit").addEventListener("click", async () => {
       });
       data = await res.json();
       if (!res.ok) { showError("auth-error", data.detail || "E-mail ou senha incorretos."); return; }
-      auth.save(data.access_token, { email, plan: "free", analyses_used: 0 });
+      auth.save(data.access_token, { email, credits: 0, analyses_used: 0 });
     }
 
     closeModal("modal-auth");
@@ -217,30 +220,63 @@ document.getElementById("auth-submit").addEventListener("click", async () => {
   }
 });
 
-// ─── Upgrade modal ────────────────────────────────────────────────────────────
-let selectedPlan = "trimestral";
+// ─── Compra de créditos ───────────────────────────────────────────────────────
+let selectedPack = 10;
 
 document.querySelectorAll(".plan-card").forEach((card) => {
   card.addEventListener("click", () => {
     document.querySelectorAll(".plan-card").forEach((c) => c.classList.remove("selected"));
     card.classList.add("selected");
-    selectedPlan = card.dataset.plan;
+    selectedPack = Number(card.dataset.credits);
   });
 });
 
 document.getElementById("modal-upgrade-close").addEventListener("click", () => closeModal("modal-upgrade"));
 document.getElementById("btn-open-upgrade").addEventListener("click", () => openModal("modal-upgrade"));
 
-document.getElementById("btn-checkout").addEventListener("click", () => {
-  // Abre MercadoPago externamente (evita taxa da Play Store)
-  // Em produção, gere um link de checkout via sua API e redirecione
-  const mpLinks = {
-    mensal:      "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=SEU_ID_MENSAL",
-    trimestral:  "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=SEU_ID_TRIMESTRAL",
-    anual:       "https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=SEU_ID_ANUAL",
-  };
-  window.open(mpLinks[selectedPlan], "_blank");
+document.getElementById("btn-checkout").addEventListener("click", async () => {
+  if (!auth.token) { openModal("modal-auth"); return; }
+
+  const btn = document.getElementById("btn-checkout");
+  btn.disabled = true;
+  btn.textContent = "Redirecionando...";
+
+  try {
+    const res = await fetch(`${API_URL}/billing/buy-credits`, {
+      method: "POST",
+      headers: auth.headers(),
+      body: JSON.stringify({ credits: selectedPack }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.detail || "Erro ao iniciar pagamento.");
+      return;
+    }
+    window.location.href = data.checkout_url;
+  } catch (err) {
+    alert("Erro de conexão ao iniciar pagamento: " + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Comprar agora";
+  }
 });
+
+// ─── Retorno de pagamento (via back_urls do MercadoPago) ──────────────────────
+const paymentStatus = new URLSearchParams(window.location.search).get("payment");
+if (paymentStatus) {
+  history.replaceState({}, "", window.location.pathname);
+  if (auth.token) {
+    fetchMe().then(() => {
+      if (paymentStatus === "success") {
+        alert("Pagamento aprovado! Seus créditos foram adicionados.");
+      } else if (paymentStatus === "pending") {
+        alert("Pagamento pendente. Assim que for aprovado, seus créditos aparecerão automaticamente.");
+      } else if (paymentStatus === "failure") {
+        alert("Pagamento não concluído. Tente novamente quando quiser.");
+      }
+    });
+  }
+}
 
 // ─── Scoring local (mantido como fallback offline) ────────────────────────────
 const keywords = {
