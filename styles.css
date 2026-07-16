@@ -216,6 +216,7 @@ li {
 }
 
 .ring {
+  position: relative;
   display: grid;
   width: min(360px, 78vw);
   aspect-ratio: 1;
@@ -355,6 +356,29 @@ a:focus {
   font-family: "Cascadia Code", ui-monospace, monospace;
   font-size: 12px;
   text-transform: uppercase;
+}
+
+.example-badge {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 8px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(24, 32, 27, 0.08);
+  color: rgba(24, 32, 27, 0.55);
+  font-family: "Cascadia Code", ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ring .example-badge {
+  position: absolute;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-left: 0;
 }
 
 .section-hint {

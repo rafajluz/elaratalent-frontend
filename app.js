@@ -690,6 +690,7 @@ function updateRing(match) {
 function finishAnalysis(match, screening, interview, offer, gaps, questions, role) {
   currentReport = { role, match, screening, interview, offer, gaps, questions, date: new Date().toLocaleDateString("pt-BR") };
   saveHistory(currentReport);
+  document.querySelectorAll(".example-badge").forEach((el) => el.remove());
 }
 
 // ─── Gerar materiais ──────────────────────────────────────────────────────────
