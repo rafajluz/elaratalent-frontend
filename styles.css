@@ -775,3 +775,120 @@ button.loading { opacity: 0.6; pointer-events: none; }
     grid-template-columns: 1fr;
   }
 }
+
+/* Páginas legais (Termos de Uso, Política de Privacidade) */
+.legal-shell {
+  width: min(760px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 32px 0 60px;
+}
+
+.legal-back {
+  display: inline-block;
+  margin-bottom: 24px;
+  color: var(--moss);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+.legal-back:hover {
+  text-decoration: underline;
+}
+
+.legal-page h1 {
+  max-width: none;
+  margin: 0 0 6px;
+  font-size: clamp(30px, 5vw, 42px);
+  line-height: 1.1;
+}
+
+.legal-page .legal-updated {
+  color: rgba(24, 32, 27, 0.55);
+  font-size: 13px;
+  margin: 0 0 32px;
+}
+
+.legal-page h2 {
+  margin: 36px 0 12px;
+  font-size: clamp(19px, 2.4vw, 23px);
+  line-height: 1.25;
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+}
+
+.legal-page h2:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.legal-page p,
+.legal-page li {
+  font-size: 15px;
+}
+
+.legal-page ul {
+  padding-left: 22px;
+}
+
+.legal-page table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 14px;
+}
+
+.legal-page th,
+.legal-page td {
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.legal-page th {
+  background: var(--paper);
+  font-weight: 700;
+}
+
+.legal-page a {
+  color: var(--moss);
+}
+
+.legal-note {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 16px;
+  font-size: 13px;
+  color: rgba(24, 32, 27, 0.7);
+  margin: 12px 0;
+}
+
+/* Rodapé do site */
+.site-footer {
+  width: min(1220px, calc(100% - 32px));
+  margin: 40px auto 0;
+  padding: 24px 0;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 13px;
+  color: rgba(24, 32, 27, 0.55);
+}
+
+.site-footer nav {
+  display: flex;
+  gap: 18px;
+}
+
+.site-footer a {
+  color: rgba(24, 32, 27, 0.55);
+  text-decoration: none;
+}
+.site-footer a:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
