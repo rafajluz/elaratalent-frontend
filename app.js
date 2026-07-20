@@ -171,7 +171,7 @@ document.getElementById("forgot-submit").addEventListener("click", async () => {
     showError("auth-error", data.message || "Link enviado.");
     document.getElementById("auth-error").style.color = "#4f6a56";
   } catch (_) {
-    showError("auth-error", "Erro de conexão. Tenta de novo.");
+    showError("auth-error", "Erro de conexão. Tente de novo.");
   } finally {
     btn.classList.remove("loading");
   }
@@ -987,7 +987,7 @@ document.getElementById("reset-submit").addEventListener("click", async () => {
       showError("reset-error", data.detail || "Erro ao redefinir.");
     }
   } catch (_) {
-    showError("reset-error", "Erro de conexão. Tenta de novo.");
+    showError("reset-error", "Erro de conexão. Tente de novo.");
   } finally {
     btn.classList.remove("loading");
   }
