@@ -128,6 +128,7 @@ function setAuthMode(mode) {
   updateText("auth-modal-title", isRegister ? "Criar conta grátis" : "Entrar");
   updateText("auth-submit", isRegister ? "Cadastrar" : "Entrar");
   document.getElementById("auth-form-name").style.display = isRegister ? "block" : "none";
+  document.getElementById("auth-form-terms").style.display = isRegister ? "block" : "none";
   document.getElementById("auth-switch").innerHTML = isRegister
     ? `Já tem conta? <a id="auth-toggle">Entrar</a>`
     : `Não tem conta? <a id="auth-toggle">Cadastre-se grátis</a>`;
@@ -192,10 +193,14 @@ document.getElementById("auth-submit").addEventListener("click", async () => {
     let res, data;
 
     if (authMode === "register") {
+      if (!document.getElementById("auth-terms-checkbox").checked) {
+        showError("auth-error", "Você precisa aceitar os Termos de Uso e a Política de Privacidade para continuar.");
+        return;
+      }
       res = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, full_name: fullName || null }),
+        body: JSON.stringify({ email, password, full_name: fullName || null, accept_terms: true }),
       });
       data = await res.json();
       if (!res.ok) { showError("auth-error", data.detail || "Erro ao cadastrar."); return; }

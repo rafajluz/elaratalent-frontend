@@ -616,6 +616,23 @@ ol {
   color: rgba(24,32,27,0.62);
 }
 .modal .switch-link a { color: var(--plum); cursor: pointer; }
+.terms-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(24,32,27,0.75);
+  cursor: pointer;
+}
+.terms-checkbox input[type="checkbox"] {
+  margin: 2px 0 0;
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+}
+.terms-checkbox a { color: var(--plum); }
 .modal-error {
   background: #fef2f2;
   color: #991b1b;
