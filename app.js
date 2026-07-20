@@ -155,7 +155,7 @@ document.getElementById("forgot-back").addEventListener("click", () => showForgo
 
 document.getElementById("forgot-submit").addEventListener("click", async () => {
   const email = document.getElementById("forgot-email").value.trim();
-  if (!email) { showError("auth-error", "Indica o teu e-mail."); return; }
+  if (!email) { showError("auth-error", "Informe seu e-mail."); return; }
 
   const btn = document.getElementById("forgot-submit");
   btn.classList.add("loading");
@@ -725,14 +725,14 @@ function generateMaterials() {
     ? `<ul>${atsTips.map((t) => `<li>${escapeHtml(t)}</li>`).join("")}</ul>`
     : gaps.length
     ? `<ul>${gaps.slice(0, 3).map((g) => `<li>Acrescentar evidências de: ${escapeHtml(g)}</li>`).join("")}</ul>`
-    : `<p>Corre a análise para gerar o plano personalizado.</p>`;
+    : `<p>Rode a análise para gerar o plano personalizado.</p>`;
 
   const networking = `<ol>
-    <li>Pesquisa pessoas que trabalham ou trabalharam em ${role} no LinkedIn.</li>
-    <li>Envia pedido de ligação com nota: <em>"Vi a vaga de ${role} e a vossa área é muito alinhada com o meu percurso — posso partilhar um resumo?"</em></li>
-    <li>Se aceite, envia mensagem curta com o teu diferencial principal${s1 ? `: ${s1}` : ""}.</li>
-    <li>Pede 15 minutos de conversa informal antes de aplicares formalmente.</li>
-    <li>Após a conversa, aplica referenciando o nome do contacto na candidatura.</li>
+    <li>Pesquise pessoas que trabalham ou trabalharam em ${role} no LinkedIn.</li>
+    <li>Envie um pedido de conexão com a nota: <em>"Vi a vaga de ${role} e a área de vocês é muito alinhada com a minha trajetória — posso compartilhar um resumo?"</em></li>
+    <li>Se aceitarem, envie uma mensagem curta com seu diferencial principal${s1 ? `: ${s1}` : ""}.</li>
+    <li>Peça 15 minutos de conversa informal antes de se candidatar formalmente.</li>
+    <li>Depois da conversa, candidate-se mencionando o nome do contato na candidatura.</li>
   </ol>`;
 
   materials.hidden = false;
@@ -828,7 +828,7 @@ document.getElementById("fetch-job-button")?.addEventListener("click", async () 
       document.getElementById("job-input").scrollIntoView({ behavior: "smooth" });
     } else {
       const err = await res.json().catch(() => ({}));
-      alert(err.detail || "Não foi possível extrair o texto da vaga. Cola manualmente.");
+      alert(err.detail || "Não foi possível extrair o texto da vaga. Cole manualmente.");
     }
   } catch (err) {
     alert("Erro ao buscar a vaga: " + err.message);
@@ -940,7 +940,7 @@ document.getElementById("resume-file")?.addEventListener("change", async (e) => 
       if (smallEl) smallEl.textContent = origSmall;
     }
   } catch (err) {
-    alert("Erro ao carregar ficheiro: " + err.message);
+    alert("Erro ao carregar arquivo: " + err.message);
     if (strongEl) strongEl.textContent = origStrong;
     if (smallEl) smallEl.textContent = origSmall;
   } finally {
