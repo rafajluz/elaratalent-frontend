@@ -633,7 +633,7 @@ function renderFromApi(data, resume, job) {
   }
 
   updateRing(match_score);
-  finishAnalysis(match_score, probabilities.screening, probabilities.interview, probabilities.offer, critical_gaps, interview_questions, inferRole(job));
+  finishAnalysis(match_score, probabilities.screening, probabilities.interview, probabilities.offer, critical_gaps, interview_questions, data.job_title || inferRole(job));
 }
 
 function runLocalScoring(resume, job) {
@@ -698,7 +698,7 @@ function generateMaterials() {
   if (!auth.token) { openModal("modal-auth"); return; }
 
   const job = document.getElementById("job-input").value;
-  const role = escapeHtml(inferRole(job));
+  const role = escapeHtml(lastApiData?.job_title || inferRole(job));
   const materials = document.getElementById("materials");
 
   const pitch = lastApiData?.optimized_summary || "";
