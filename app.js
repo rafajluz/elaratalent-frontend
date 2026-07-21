@@ -1003,3 +1003,10 @@ renderHistory();
 renderMetrics();
 renderAuthArea();
 if (auth.token) fetchMe();
+
+// ─── PWA: registro do Service Worker ──────────────────────────────────────────
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch((err) => console.error("Erro ao registrar Service Worker:", err));
+  });
+}
