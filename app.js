@@ -953,6 +953,46 @@ document.getElementById("resume-file")?.addEventListener("change", async (e) => 
   }
 });
 
+document.getElementById("job-image-input")?.addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const labelEl = document.getElementById("job-image-label");
+  const origLabel = labelEl?.textContent;
+  if (labelEl) labelEl.textContent = "Lendo imagem...";
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const res = await fetch(`${API_URL}/parse-job-image`, {
+      method: "POST",
+      headers: auth.token ? { Authorization: `Bearer ${auth.token}` } : {},
+      body: formData,
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const jobInput = document.getElementById("job-input");
+      jobInput.value = data.text;
+      jobInput.scrollIntoView({ behavior: "smooth" });
+      if (labelEl) labelEl.textContent = "📷 Print lido ✓";
+    } else {
+      const rawText = await res.text().catch(() => "");
+      let detail = "";
+      try { detail = JSON.parse(rawText).detail; } catch {}
+      const msg = detail || (res.status === 404 ? "Endpoint não encontrado — aguarda o redeploy do servidor (~2 min) e tenta de novo." : `Erro ${res.status}: ${rawText.slice(0, 120)}`);
+      alert(msg);
+      if (labelEl) labelEl.textContent = origLabel;
+    }
+  } catch (err) {
+    alert("Erro ao carregar imagem: " + err.message);
+    if (labelEl) labelEl.textContent = origLabel;
+  } finally {
+    e.target.value = "";
+  }
+});
+
 // Fecha modais clicando fora
 ["modal-auth", "modal-upgrade", "modal-reset"].forEach((id) => {
   document.getElementById(id).addEventListener("click", (e) => {
