@@ -954,15 +954,15 @@ document.getElementById("resume-file")?.addEventListener("change", async (e) => 
 });
 
 document.getElementById("job-image-input")?.addEventListener("change", async (e) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  const files = Array.from(e.target.files || []);
+  if (!files.length) return;
 
   const labelEl = document.getElementById("job-image-label");
   const origLabel = labelEl?.textContent;
-  if (labelEl) labelEl.textContent = "Lendo imagem...";
+  if (labelEl) labelEl.textContent = files.length > 1 ? `Lendo ${files.length} imagens...` : "Lendo imagem...";
 
   const formData = new FormData();
-  formData.append("file", file);
+  files.forEach((f) => formData.append("files", f));
 
   try {
     const res = await fetch(`${API_URL}/parse-job-image`, {
@@ -976,7 +976,7 @@ document.getElementById("job-image-input")?.addEventListener("change", async (e)
       const jobInput = document.getElementById("job-input");
       jobInput.value = data.text;
       jobInput.scrollIntoView({ behavior: "smooth" });
-      if (labelEl) labelEl.textContent = "📷 Print lido ✓";
+      if (labelEl) labelEl.textContent = files.length > 1 ? `📷 ${files.length} prints lidos ✓` : "📷 Print lido ✓";
     } else {
       const rawText = await res.text().catch(() => "");
       let detail = "";
