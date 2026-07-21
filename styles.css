@@ -1,13 +1,41 @@
 :root {
   --ink: #14151a;
+  --ink-rgb: 20, 21, 26;
   --paper: #eeece4;
   --chalk: #ffffff;
   --moss: #14151a;
   --mint: #dde3ff;
   --copper: #c1401f;
+  --copper-rgb: 193, 64, 31;
   --plum: #2a3eff;
+  --plum-rgb: 42, 62, 255;
+  --plum-deep: #1c2bcc;
+  --plum-gradient-end: #1c2bcc;
   --blue: #2a3eff;
   --line: #dedad0;
+  --error-bg: #fdf0ee;
+  --error-text: #8a2a13;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #e8e6e0;
+    --ink-rgb: 232, 230, 224;
+    --paper: #1b1c21;
+    --chalk: #24262e;
+    --moss: #e8e6e0;
+    --mint: #262b4a;
+    --copper: #ff7a52;
+    --copper-rgb: 255, 122, 82;
+    --plum: #7c8cff;
+    --plum-rgb: 124, 140, 255;
+    --plum-deep: #aeb8ff;
+    --plum-gradient-end: #171f66;
+    --blue: #7c8cff;
+    --line: #34363f;
+    --error-bg: rgba(255, 122, 82, 0.14);
+    --error-text: #ffb199;
+  }
 }
 
 * {
@@ -73,7 +101,7 @@ h2,
 .brand small,
 .eyebrow,
 .metrics small {
-  color: rgba(20, 21, 26, 0.62);
+  color: rgba(var(--ink-rgb), 0.62);
 }
 
 .mark {
@@ -82,7 +110,7 @@ h2,
   height: 42px;
   place-items: center;
   border-radius: 3px;
-  background: linear-gradient(135deg, var(--plum), #1c2bcc);
+  background: linear-gradient(135deg, var(--plum), var(--plum-gradient-end));
   color: #ffffff;
   font-family: "IBM Plex Mono", ui-monospace, monospace;
   font-weight: 800;
@@ -96,14 +124,14 @@ nav {
 }
 
 nav a {
-  color: rgba(20, 21, 26, 0.72);
+  color: rgba(var(--ink-rgb), 0.72);
   padding: 10px 12px;
   text-decoration: none;
   border-radius: 3px;
 }
 
 nav a:hover {
-  background: rgba(42, 62, 255, 0.1);
+  background: rgba(var(--plum-rgb), 0.1);
   color: var(--plum);
 }
 
@@ -147,21 +175,21 @@ button,
 }
 
 .badges span:nth-child(1) {
-  border-color: rgba(20, 21, 26, 0.35);
-  background: rgba(20, 21, 26, 0.06);
+  border-color: rgba(var(--ink-rgb), 0.35);
+  background: rgba(var(--ink-rgb), 0.06);
   color: var(--ink);
 }
 
 .badges span:nth-child(2) {
-  border-color: rgba(42, 62, 255, 0.35);
-  background: rgba(42, 62, 255, 0.1);
-  color: #1c2bcc;
+  border-color: rgba(var(--plum-rgb), 0.35);
+  background: rgba(var(--plum-rgb), 0.1);
+  color: var(--plum-deep);
 }
 
 .badges span:nth-child(3) {
-  border-color: rgba(42, 62, 255, 0.25);
-  background: rgba(42, 62, 255, 0.06);
-  color: #1c2bcc;
+  border-color: rgba(var(--plum-rgb), 0.25);
+  background: rgba(var(--plum-rgb), 0.06);
+  color: var(--plum-deep);
 }
 
 h1 {
@@ -181,7 +209,7 @@ h2 {
 
 p,
 li {
-  color: rgba(20, 21, 26, 0.72);
+  color: rgba(var(--ink-rgb), 0.72);
   line-height: 1.65;
 }
 
@@ -206,9 +234,9 @@ li {
 }
 
 .secondary {
-  background: #ffffff;
+  background: var(--chalk);
   color: var(--plum);
-  border: 1px solid rgba(42, 62, 255, 0.35);
+  border: 1px solid rgba(var(--plum-rgb), 0.35);
 }
 
 .radar {
@@ -225,7 +253,7 @@ li {
   padding: 34px 26px;
   border-radius: 4px;
   border: 4px solid var(--ink);
-  background: var(--chalk);
+  background: #ffffff;
   transform: rotate(-3deg);
   box-shadow: 9px 9px 0 var(--ink);
 }
@@ -239,7 +267,7 @@ li {
 
 .ring small {
   font-family: "IBM Plex Mono", ui-monospace, monospace;
-  color: var(--ink);
+  color: #14151a;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -285,7 +313,7 @@ textarea {
 textarea:focus,
 button:focus,
 a:focus {
-  outline: 3px solid rgba(42, 62, 255, 0.28);
+  outline: 3px solid rgba(var(--plum-rgb), 0.28);
   outline-offset: 2px;
 }
 
@@ -325,7 +353,7 @@ a:focus {
 .url-hint {
   margin: 0 0 8px;
   font-size: 12px;
-  color: rgba(20, 21, 26, 0.45);
+  color: rgba(var(--ink-rgb), 0.45);
 }
 
 .job-image-upload {
@@ -338,9 +366,9 @@ a:focus {
   padding: 10px 16px;
   font-weight: 700;
   cursor: pointer;
-  background: #ffffff;
+  background: var(--chalk);
   color: var(--plum);
-  border: 1px solid rgba(42, 62, 255, 0.35);
+  border: 1px solid rgba(var(--plum-rgb), 0.35);
 }
 
 .metrics {
@@ -386,8 +414,8 @@ a:focus {
   margin-left: 8px;
   padding: 3px 9px;
   border-radius: 999px;
-  background: rgba(20, 21, 26, 0.08);
-  color: rgba(20, 21, 26, 0.55);
+  background: rgba(var(--ink-rgb), 0.08);
+  color: rgba(var(--ink-rgb), 0.55);
   font-family: "IBM Plex Mono", ui-monospace, monospace;
   font-size: 10px;
   font-weight: 700;
@@ -402,12 +430,13 @@ a:focus {
   transform: translateX(-50%);
   margin-left: 0;
   background: rgba(20, 21, 26, 0.12);
+  color: rgba(20, 21, 26, 0.6);
 }
 
 .section-hint {
   margin: 0 0 12px;
   font-size: 13px;
-  color: rgba(20, 21, 26, 0.55);
+  color: rgba(var(--ink-rgb), 0.55);
   line-height: 1.5;
 }
 
@@ -462,7 +491,7 @@ a:focus {
 .probabilities small {
   display: block;
   margin-top: 6px;
-  color: rgba(20, 21, 26, 0.62);
+  color: rgba(var(--ink-rgb), 0.62);
 }
 
 .objections,
@@ -518,7 +547,7 @@ a:focus {
 
 .job-results-list .job-meta {
   font-size: 13px;
-  color: rgba(20, 21, 26, 0.62);
+  color: rgba(var(--ink-rgb), 0.62);
 }
 
 .job-results-list .job-score {
@@ -550,7 +579,7 @@ a:focus {
   border-radius: 2px;
   background: var(--paper);
   padding: 12px 14px;
-  color: rgba(20, 21, 26, 0.76);
+  color: rgba(var(--ink-rgb), 0.76);
 }
 
 ul,
@@ -559,7 +588,7 @@ ol {
 }
 
 .copper {
-  border-color: rgba(193, 64, 31, 0.4);
+  border-color: rgba(var(--copper-rgb), 0.4);
 }
 
 .copilot {
@@ -600,7 +629,7 @@ ol {
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(20, 21, 26, 0.6);
+  background: rgba(10, 11, 14, 0.6);
   z-index: 100;
   align-items: center;
   justify-content: center;
@@ -608,13 +637,14 @@ ol {
 }
 .modal-overlay.open { display: flex; }
 .modal {
-  background: #fff;
+  background: var(--chalk);
+  color: var(--ink);
   border-radius: 4px;
   padding: 32px;
   width: 100%;
   max-width: 420px;
   border: 1px solid var(--line);
-  box-shadow: 12px 12px 0 rgba(20, 21, 26, 0.08);
+  box-shadow: 12px 12px 0 rgba(var(--ink-rgb), 0.08);
 }
 .modal h2 { margin: 0 0 20px; font-size: 22px; }
 .modal input[type="email"],
@@ -625,11 +655,13 @@ ol {
   padding: 11px 14px;
   border: 1px solid var(--line);
   border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink);
   font: inherit;
   margin-bottom: 12px;
   box-sizing: border-box;
 }
-.modal input:focus { outline: 3px solid rgba(42, 62, 255, 0.28); }
+.modal input:focus { outline: 3px solid rgba(var(--plum-rgb), 0.28); }
 .modal button.primary {
   width: 100%;
   padding: 13px;
@@ -640,7 +672,7 @@ ol {
   margin-top: 14px;
   text-align: center;
   font-size: 13px;
-  color: rgba(20, 21, 26, 0.62);
+  color: rgba(var(--ink-rgb), 0.62);
 }
 .modal .switch-link a { color: var(--plum); cursor: pointer; }
 .terms-checkbox {
@@ -650,7 +682,7 @@ ol {
   margin-bottom: 14px;
   font-size: 13px;
   line-height: 1.4;
-  color: rgba(20, 21, 26, 0.75);
+  color: rgba(var(--ink-rgb), 0.75);
   cursor: pointer;
 }
 .terms-checkbox input[type="checkbox"] {
@@ -661,8 +693,8 @@ ol {
 }
 .terms-checkbox a { color: var(--plum); }
 .modal-error {
-  background: #fdf0ee;
-  color: #8a2a13;
+  background: var(--error-bg);
+  color: var(--error-text);
   border-radius: 3px;
   padding: 9px 12px;
   font-size: 13px;
@@ -675,7 +707,7 @@ ol {
   border: none;
   font-size: 20px;
   cursor: pointer;
-  color: #888;
+  color: rgba(var(--ink-rgb), 0.55);
   padding: 0;
   line-height: 1;
   margin-top: -4px;
@@ -691,9 +723,9 @@ ol {
   transition: border-color 0.15s;
 }
 .plan-card:hover { border-color: var(--plum); }
-.plan-card.selected { border: 2px solid var(--plum); background: rgba(42, 62, 255, 0.05); }
+.plan-card.selected { border: 2px solid var(--plum); background: rgba(var(--plum-rgb), 0.07); }
 .plan-card strong { display: block; font-size: 15px; }
-.plan-card span { font-size: 13px; color: rgba(20, 21, 26, 0.62); }
+.plan-card span { font-size: 13px; color: rgba(var(--ink-rgb), 0.62); }
 .plan-card .price { float: right; font-weight: 700; color: var(--plum); }
 
 /* User bar */
@@ -709,8 +741,8 @@ ol {
   font-family: "IBM Plex Mono", ui-monospace, monospace;
   font-size: 11px;
   font-weight: 700;
-  background: rgba(42, 62, 255, 0.12);
-  color: #1c2bcc;
+  background: rgba(var(--plum-rgb), 0.14);
+  color: var(--plum-deep);
 }
 .plan-badge.premium {
   background: var(--mint);
@@ -718,12 +750,12 @@ ol {
 }
 .usage-counter {
   font-size: 12px;
-  color: rgba(20, 21, 26, 0.55);
+  color: rgba(var(--ink-rgb), 0.55);
 }
 .btn-logout {
   background: none;
   border: 1px solid var(--line);
-  color: rgba(20, 21, 26, 0.72);
+  color: rgba(var(--ink-rgb), 0.72);
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 600;
@@ -744,21 +776,21 @@ ol {
 /* Paywall banner */
 .paywall-banner {
   display: none;
-  background: rgba(193, 64, 31, 0.05);
-  border: 1px solid rgba(193, 64, 31, 0.3);
+  background: rgba(var(--copper-rgb), 0.06);
+  border: 1px solid rgba(var(--copper-rgb), 0.3);
   border-radius: 3px;
   padding: 18px 22px;
   margin-top: 18px;
   text-align: center;
 }
 .paywall-banner.show { display: block; }
-.paywall-banner p { margin: 0 0 12px; color: rgba(20, 21, 26, 0.8); }
+.paywall-banner p { margin: 0 0 12px; color: rgba(var(--ink-rgb), 0.8); }
 .paywall-banner button { padding: 11px 24px; }
 
 /* PII detection banner */
 .pii-banner {
-  background: #fdf3ee;
-  border: 1px solid rgba(193, 64, 31, 0.35);
+  background: rgba(var(--copper-rgb), 0.06);
+  border: 1px solid rgba(var(--copper-rgb), 0.35);
   border-radius: 3px;
   padding: 14px 16px;
   margin-top: 12px;
@@ -766,7 +798,7 @@ ol {
 .pii-banner p {
   margin: 0 0 10px;
   font-size: 13px;
-  color: rgba(20, 21, 26, 0.85);
+  color: rgba(var(--ink-rgb), 0.85);
 }
 .pii-banner-actions {
   display: flex;
@@ -848,7 +880,7 @@ button.loading { opacity: 0.6; pointer-events: none; }
 }
 
 .legal-page .legal-updated {
-  color: rgba(20, 21, 26, 0.55);
+  color: rgba(var(--ink-rgb), 0.55);
   font-size: 13px;
   margin: 0 0 32px;
 }
@@ -905,7 +937,7 @@ button.loading { opacity: 0.6; pointer-events: none; }
   border-radius: 3px;
   padding: 14px 16px;
   font-size: 13px;
-  color: rgba(20, 21, 26, 0.7);
+  color: rgba(var(--ink-rgb), 0.7);
   margin: 12px 0;
 }
 
@@ -921,7 +953,7 @@ button.loading { opacity: 0.6; pointer-events: none; }
   flex-wrap: wrap;
   gap: 12px;
   font-size: 13px;
-  color: rgba(20, 21, 26, 0.55);
+  color: rgba(var(--ink-rgb), 0.55);
 }
 
 .site-footer nav {
@@ -930,7 +962,7 @@ button.loading { opacity: 0.6; pointer-events: none; }
 }
 
 .site-footer a {
-  color: rgba(20, 21, 26, 0.55);
+  color: rgba(var(--ink-rgb), 0.55);
   text-decoration: none;
 }
 .site-footer a:hover {
