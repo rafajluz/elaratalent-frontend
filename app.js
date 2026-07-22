@@ -51,6 +51,21 @@ function showError(id, msg) {
   el.style.display = msg ? "block" : "none";
 }
 
+// A API pode devolver `detail` como string (erro simples) ou como lista de
+// erros de validação do Pydantic (ex: senha curta) — nunca inserir isso
+// direto num texto sem tratar, senão vira "[object Object]" na tela.
+function extractErrorMessage(data, fallback) {
+  if (!data) return fallback;
+  if (typeof data.detail === "string") return data.detail;
+  if (Array.isArray(data.detail) && data.detail.length) {
+    if (data.detail[0]?.loc?.includes("password") || data.detail[0]?.loc?.includes("new_password")) {
+      return "A senha deve ter pelo menos 8 caracteres.";
+    }
+    return "Dados inválidos. Verifique os campos e tente de novo.";
+  }
+  return fallback;
+}
+
 function openModal(id) {
   document.getElementById(id).classList.add("open");
 }
@@ -184,6 +199,10 @@ document.getElementById("auth-submit").addEventListener("click", async () => {
   const fullName = document.getElementById("auth-name").value.trim();
 
   if (!email || !password) { showError("auth-error", "Preencha e-mail e senha."); return; }
+  if (authMode === "register" && password.length < 8) {
+    showError("auth-error", "A senha deve ter pelo menos 8 caracteres.");
+    return;
+  }
 
   const btn = document.getElementById("auth-submit");
   btn.classList.add("loading");
@@ -203,7 +222,7 @@ document.getElementById("auth-submit").addEventListener("click", async () => {
         body: JSON.stringify({ email, password, full_name: fullName || null, accept_terms: true }),
       });
       data = await res.json();
-      if (!res.ok) { showError("auth-error", data.detail || "Erro ao cadastrar."); return; }
+      if (!res.ok) { showError("auth-error", extractErrorMessage(data, "Erro ao cadastrar.")); return; }
       auth.save(data.access_token, { email, credits: 0, analyses_used: 0 });
     } else {
       res = await fetch(`${API_URL}/auth/login`, {
@@ -212,7 +231,7 @@ document.getElementById("auth-submit").addEventListener("click", async () => {
         body: new URLSearchParams({ username: email, password }),
       });
       data = await res.json();
-      if (!res.ok) { showError("auth-error", data.detail || "E-mail ou senha incorretos."); return; }
+      if (!res.ok) { showError("auth-error", extractErrorMessage(data, "E-mail ou senha incorretos.")); return; }
       auth.save(data.access_token, { email, credits: 0, analyses_used: 0 });
     }
 
@@ -1010,7 +1029,7 @@ if (resetToken) {
 document.getElementById("reset-submit").addEventListener("click", async () => {
   const pwd = document.getElementById("reset-password").value;
   const confirm = document.getElementById("reset-password-confirm").value;
-  if (!pwd || pwd.length < 6) { showError("reset-error", "A senha deve ter pelo menos 6 caracteres."); return; }
+  if (!pwd || pwd.length < 8) { showError("reset-error", "A senha deve ter pelo menos 8 caracteres."); return; }
   if (pwd !== confirm) { showError("reset-error", "As senhas não coincidem."); return; }
 
   const btn = document.getElementById("reset-submit");
@@ -1029,7 +1048,7 @@ document.getElementById("reset-submit").addEventListener("click", async () => {
       alert(data.message);
       openModal("modal-auth");
     } else {
-      showError("reset-error", data.detail || "Erro ao redefinir.");
+      showError("reset-error", extractErrorMessage(data, "Erro ao redefinir."));
     }
   } catch (_) {
     showError("reset-error", "Erro de conexão. Tente de novo.");
