@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Consulta ao Rol da ANS — Elara Talent</title>
+    <meta name="description" content="Consulte se um medicamento ou tratamento costuma estar no Rol de Procedimentos e Eventos em Saúde da ANS. Ferramenta informativa, não substitui a consulta oficial." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="legal-shell rol-shell">
+      <a class="legal-back" href="/">← Voltar ao Elara Talent</a>
+
+      <h1>O medicamento ou tratamento está no Rol da ANS?</h1>
+      <p class="legal-updated">Consulta informativa — não é a base oficial da ANS.</p>
+
+      <div class="rol-disclaimer">
+        <p>
+          Esta ferramenta é <strong>apenas informativa</strong> e educacional. A lista abaixo é uma
+          <strong>amostra curada e não exaustiva</strong> de tratamentos e medicamentos, com base em
+          fontes públicas (Lei 9.656/98, Lei 12.880/2013, Lei 14.454/2022 e atualizações do rol
+          divulgadas pela ANS). Ela <strong>não substitui</strong> a consulta oficial, e a cobertura real
+          sempre depende do seu contrato, do tipo de plano e de avaliação médica.
+        </p>
+        <p>
+          Para a fonte oficial e completa, use a
+          <a href="https://www.ans.gov.br/ROL-web/" target="_blank" rel="noopener">ferramenta de consulta da ANS</a>
+          ou fale com a sua operadora. Em caso de negativa de cobertura, procure orientação jurídica
+          especializada — este conteúdo não é aconselhamento jurídico ou médico.
+        </p>
+      </div>
+
+      <div class="rol-search-box">
+        <input
+          type="text"
+          id="rol-search-input"
+          placeholder="Digite o nome do medicamento ou tratamento (ex.: quimioterapia oral, FIV, CPAP)..."
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+
+      <p class="rol-hint" id="rol-hint">Digite ao menos 2 letras para buscar. Mostrando alguns exemplos:</p>
+
+      <div class="rol-results" id="rol-results"></div>
+    </main>
+
+    <script src="rol-ans-data.js"></script>
+    <script src="rol-ans.js"></script>
+  </body>
+</html>

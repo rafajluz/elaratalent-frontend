@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/((?!termos\\.html|privacidade\\.html).*)", "destination": "/index.html" }
+    { "source": "/((?!termos\\.html|privacidade\\.html|rol-ans\\.html).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
